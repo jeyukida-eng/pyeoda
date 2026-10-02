@@ -2960,6 +2960,18 @@ body.mobile-build{margin:0!important;min-width:0!important;-webkit-text-size-adj
         </div>
       </div>
 
+      <div class='card' id='paymentTestCard' style='margin-top:22px;border:1px dashed rgba(77,108,78,.45);background:rgba(238,246,237,.62)'>
+        <div style='display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap'>
+          <div>
+            <div style='display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.08em;color:#4d6c4e;margin-bottom:6px'>TEST PAYMENT</div>
+            <h3 style='margin:0 0 6px'>토스페이먼츠 테스트 결제</h3>
+            <p class='meta' style='margin:0'>사업자 등록 전 베타용입니다. 테스트 환경에서는 실제 금액이 출금되지 않습니다.</p>
+          </div>
+          <button type='button' class='primary' id='testPaymentQuickBtn'>₩4,900 테스트 결제</button>
+        </div>
+        <p class='note' id='testPaymentStatus' style='margin:12px 0 0'>결제 요청 → 인증 → 서버 승인까지 실제 운영과 같은 흐름으로 점검합니다. 테스트 거래는 매출에 포함하지 않습니다.</p>
+      </div>
+
       <h3 style='margin-top:28px'>이번 달</h3>
       <div class='stats'>
         <div class='stat'><span>총 거래액</span><b id='monthGross'>₩0</b></div>
@@ -2991,8 +3003,20 @@ window.PYEODA_INFRA_CONFIG = Object.assign({
   readingServerDebounceMs: 15 * 1000,
   viewThrottleMs: 6 * 60 * 60 * 1000
 }, window.PYEODA_INFRA_CONFIG || {});
+
+// 사업자 등록 전 베타용 Toss Payments TEST 모드.
+// 실제 금액은 출금되지 않으며, 라이브 전환 시 clientKey와 서버 Secret만 교체합니다.
+window.PYEODA_PAYMENT_CONFIG = Object.assign({
+  enabled: true,
+  mode: 'test',
+  provider: 'toss',
+  clientKey: '',
+  createOrderFunction: 'create-test-payment-order',
+  confirmFunction: 'confirm-test-payment'
+}, window.PYEODA_PAYMENT_CONFIG || {});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.tosspayments.com/v2/standard"></script>
 <script>
 const shelves={
  popular:{title:'지금 인기 있는 작품',desc:'표지부터 책 소개, 작가의 말까지 한 장에서 빠르게 살펴보세요.',items:[
@@ -4173,7 +4197,7 @@ function bindReads(){
   document.querySelectorAll('.read').forEach(btn=>btn.onclick=async()=>{
     const b=findBookFromButton(btn);
     if(!b){toast('작품 정보를 찾지 못했습니다.');return}
-    if(b.price){toast('소장 결제 화면은 실제 결제 연동 단계에서 연결합니다.');return}
+    if(b.price){await startTossTestPayment({title:b.title,author:b.author,price:b.price,bookId:b.serverId||''});return}
     await openReader(b,readingStateFor(b));
   });
   document.querySelectorAll('.read-first').forEach(btn=>btn.onclick=async()=>{
@@ -4181,13 +4205,14 @@ function bindReads(){
     if(!b){toast('작품 정보를 찾지 못했습니다.');return}
     await openReader(b,{state:'first',lastEpisode:0,totalEpisodes:inferTotalEpisodes(b)});
   });
-  document.querySelectorAll('.buy-book').forEach(btn=>btn.onclick=()=>{
+  document.querySelectorAll('.buy-book').forEach(btn=>btn.onclick=async()=>{
     const title=btn.dataset.title||'';
     const author=btn.dataset.author||'';
     const price=btn.dataset.price||'';
+    const bookId=btn.dataset.serverId||'';
     const owned=shelves.owned.items.find(x=>x.title===title&&x.author===author);
-    if(owned){
-      toast(`${price||owned.price||''} 소장 구매 화면은 실제 결제 연동 단계에서 연결합니다.`.trim());
+    if(owned||price){
+      await startTossTestPayment({title,author,price:price||owned?.price||'',bookId});
     }else{
       toast('이 작품의 소장용 전자책 구매 화면은 판매 등록 후 연결됩니다.');
     }
@@ -7449,6 +7474,114 @@ if(serverClearBtn)serverClearBtn.onclick=()=>{
 };
 
 autoConnectPyeodaServer();
+
+// ---- Toss Payments TEST mode -------------------------------------------------
+const TEST_PURCHASES_KEY='pyeoda-test-purchases';
+const TEST_PENDING_ORDER_KEY='pyeoda-test-pending-order';
+
+function testPaymentApiConfig(){
+  const server=window.PYEODA_SERVER_CONFIG||{};
+  const payment=window.PYEODA_PAYMENT_CONFIG||{};
+  return {server,payment};
+}
+function testPurchaseStore(){
+  try{const rows=JSON.parse(localStorage.getItem(TEST_PURCHASES_KEY)||'[]');return Array.isArray(rows)?rows:[]}catch(e){return []}
+}
+function saveTestPurchase(row){
+  const rows=testPurchaseStore();
+  if(row?.orderId && !rows.some(x=>x.orderId===row.orderId)){
+    rows.unshift(row);safeJsonWrite(TEST_PURCHASES_KEY,rows.slice(0,50));
+  }
+}
+async function paymentFunctionFetch(functionName,body){
+  const {server}=testPaymentApiConfig();
+  if(!server.url||!server.anonKey)throw new Error('결제 서버 설정을 찾지 못했습니다.');
+  let authToken=server.anonKey;
+  try{
+    const session=await PYEODA_SERVER.client?.auth?.getSession?.();
+    if(session?.data?.session?.access_token)authToken=session.data.session.access_token;
+  }catch(e){}
+  const res=await fetch(`${String(server.url).replace(/\/$/,'')}/functions/v1/${functionName}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':server.anonKey,'Authorization':`Bearer ${authToken}`},
+    body:JSON.stringify(body||{})
+  });
+  let data={};try{data=await res.json()}catch(e){}
+  if(!res.ok||data?.ok===false){const err=new Error(data?.message||`결제 서버 오류 (${res.status})`);err.code=data?.code||'';err.payload=data;throw err}
+  return data;
+}
+async function startTossTestPayment({title='사는 게 익숙해질 줄 알았다',author='',price='',bookId=''}={}){
+  const cfg=window.PYEODA_PAYMENT_CONFIG||{};
+  if(!cfg.enabled||cfg.mode!=='test'){toast('현재 테스트 결제 모드가 꺼져 있습니다.');return false}
+  if(typeof window.TossPayments!=='function'){toast('토스페이먼츠 결제 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.');return false}
+  try{
+    toast('테스트 주문을 만들고 있습니다…');
+    const created=await paymentFunctionFetch(cfg.createOrderFunction||'create-test-payment-order',{title,author,bookId});
+    const order=created?.order;
+    if(!order?.order_id||!order?.amount)throw new Error('테스트 주문 정보가 올바르지 않습니다.');
+    safeJsonWrite(TEST_PENDING_ORDER_KEY,{orderId:order.order_id,title:order.product_name||title,amount:Number(order.amount),author,bookId,createdAt:Date.now()});
+    const clientKey=String(created?.clientKey||cfg.clientKey||'').trim();
+    if(!clientKey)throw new Error('토스 테스트 클라이언트 키가 아직 서버에 연결되지 않았습니다.');
+    const tossPayments=window.TossPayments(clientKey);
+    const payment=tossPayments.payment({customerKey:window.TossPayments.ANONYMOUS});
+    const base=`${window.location.origin}${window.location.pathname}`;
+    await payment.requestPayment({
+      method:'CARD',
+      amount:{currency:'KRW',value:Number(order.amount)},
+      orderId:order.order_id,
+      orderName:String(order.product_name||title).slice(0,100),
+      successUrl:`${base}?pyeodaPayment=success`,
+      failUrl:`${base}?pyeodaPayment=fail`,
+      customerName:'펴다 테스트 독자',
+      card:{useEscrow:false,flowMode:'DEFAULT',useCardPoint:false,useAppCardOnly:false}
+    });
+    return true;
+  }catch(err){
+    console.error('test payment request',err);
+    if(err?.code==='USER_CANCEL')toast('테스트 결제를 취소했습니다.');
+    else toast(err?.message||'테스트 결제창을 열지 못했습니다.');
+    return false;
+  }
+}
+async function handleTossPaymentReturn(){
+  const qs=new URLSearchParams(window.location.search);
+  const mode=qs.get('pyeodaPayment');
+  if(!mode)return;
+  const clean=()=>history.replaceState({},document.title,window.location.pathname+window.location.hash);
+  if(mode==='fail'){
+    const code=qs.get('code')||'';const message=qs.get('message')||'결제가 취소되었거나 실패했습니다.';
+    const status=document.getElementById('testPaymentStatus');if(status)status.textContent=`테스트 결제 실패${code?` (${code})`:''}: ${message}`;
+    clean();toast('테스트 결제가 완료되지 않았습니다.');return;
+  }
+  if(mode!=='success')return;
+  const paymentKey=qs.get('paymentKey')||'';const orderId=qs.get('orderId')||'';const amount=Number(qs.get('amount'));
+  const pending=(()=>{try{return JSON.parse(localStorage.getItem(TEST_PENDING_ORDER_KEY)||'{}')}catch(e){return {}}})();
+  if(!paymentKey||!orderId||!Number.isFinite(amount)){
+    clean();toast('결제 인증 정보가 부족합니다.');return;
+  }
+  const status=document.getElementById('testPaymentStatus');if(status)status.textContent='결제 인증 성공 · 서버 승인 확인 중…';
+  try{
+    const cfg=window.PYEODA_PAYMENT_CONFIG||{};
+    const result=await paymentFunctionFetch(cfg.confirmFunction||'confirm-test-payment',{paymentKey,orderId,amount});
+    const pay=result?.payment||result?.order||{};
+    saveTestPurchase({orderId,title:pay.productName||pending.title||'',amount:Number(pay.amount||amount),paymentKey,status:'confirmed',paidAt:pay.approvedAt||new Date().toISOString()});
+    localStorage.removeItem(TEST_PENDING_ORDER_KEY);
+    if(status)status.textContent=`✓ 테스트 결제 승인 완료 · ₩${Number(pay.amount||amount).toLocaleString()} · 실제 출금 없음`;
+    clean();toast('토스 테스트 결제가 정상 승인되었습니다. 실제 금액은 출금되지 않습니다.');
+  }catch(err){
+    console.error('test payment confirm',err);
+    if(err?.code==='TOSS_TEST_SECRET_MISSING'){
+      if(status)status.textContent='결제창 인증까지 성공했습니다. 테스트 시크릿 키를 서버에 연결하면 승인까지 완료됩니다.';
+      clean();toast('결제 인증 성공 · 서버 승인 키 연결이 남았습니다.');
+      return;
+    }
+    if(status)status.textContent=`테스트 결제 승인 실패: ${err?.message||'알 수 없는 오류'}`;
+    clean();toast(err?.message||'테스트 결제 승인에 실패했습니다.');
+  }
+}
+const testPaymentQuickBtn=document.getElementById('testPaymentQuickBtn');
+if(testPaymentQuickBtn)testPaymentQuickBtn.onclick=()=>startTossTestPayment({title:'사는 게 익숙해질 줄 알았다',author:'오만석',price:'₩4,900'});
+setTimeout(()=>handleTossPaymentReturn().catch(console.error),0);
 
 const SALES_LEDGER_KEY='pyeoda-sales-transactions';
 const PERFORMANCE_KEY='pyeoda-performance';
