@@ -156,7 +156,7 @@ function size(){
  const height=Math.max(1,bottom-top);canvas.style.position='absolute';canvas.style.top=top+'px';canvas.style.height=height+'px';
  const d=Math.min(devicePixelRatio||1,2),width=Math.max(1,Math.round(r.width*d)),pixels=Math.max(1,Math.round(height*d));
  if(canvas.width!==width)canvas.width=width;if(canvas.height!==pixels)canvas.height=pixels;
- playView.top=shell.dataset.gameMode==='galaga'||!shell.dataset.gameMode?40:140;
+ playView.top=shell.dataset.gameMode==='bubble'?0:shell.dataset.gameMode==='tetris'?140:40;
  playView.scale=Math.min(r.width/W,height/(playView.bottom-playView.top));
  playView.x=(r.width-W*playView.scale)/2;playView.y=(height-(playView.bottom-playView.top)*playView.scale)/2-playView.top*playView.scale;
 }
