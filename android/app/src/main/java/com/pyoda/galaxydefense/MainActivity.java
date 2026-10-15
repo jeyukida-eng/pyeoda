@@ -1,6 +1,7 @@
 package com.pyoda.galaxydefense;
 
-import android.app.Activity;
+import androidx.activity.ComponentActivity;
+import androidx.activity.OnBackPressedCallback;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -19,14 +20,16 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import androidx.webkit.WebViewAssetLoader;
 
-public final class MainActivity extends Activity {
+public final class MainActivity extends ComponentActivity {
     private WebView web;
     private static final String HOME = "https://appassets.androidplatform.net/assets/index.html";
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         if (Build.VERSION.SDK_INT >= 30) getWindow().setDecorFitsSystemWindows(false);
-        if (Build.VERSION.SDK_INT >= 33) getOnBackInvokedDispatcher().registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::handleBack);
+        getOnBackPressedDispatcher().addCallback(this,new OnBackPressedCallback(true){
+            @Override public void handleOnBackPressed(){handleBack();}
+        });
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(Color.rgb(16,21,31));
         web = new WebView(this);
@@ -70,9 +73,8 @@ public final class MainActivity extends Activity {
         });
         if (state != null) web.restoreState(state); else web.loadUrl(HOME);
     }
-    @Override public void onBackPressed() { handleBack(); }
     private void handleBack() {
-        if (web == null) { super.onBackPressed(); return; }
+        if (web == null) { finish(); return; }
         if (web.getUrl()!=null && web.getUrl().endsWith("privacy.html")) { web.loadUrl(HOME); return; }
         web.evaluateJavascript("(function(){var o=document.getElementById('overlay');if(o&&o.classList.contains('hidden')){document.getElementById('pause').click();return 'handled';}var g=document.querySelector('.game-options');if(g&&!g.hidden){document.getElementById('reselect').click();return 'handled';}return 'exit';})()", value -> {
             if (!"\"handled\"".equals(value)) new AlertDialog.Builder(this).setMessage("게임을 종료할까요?")

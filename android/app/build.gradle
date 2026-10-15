@@ -21,7 +21,7 @@ android {
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
-dependencies { implementation 'androidx.webkit:webkit:1.14.0' }
+dependencies { implementation 'androidx.webkit:webkit:1.14.0'; implementation 'androidx.activity:activity:1.12.4' }
 tasks.register('copyGameIcons', Copy) {
     from '../../games/galaxy-defense'
     include 'icon-*.png'
