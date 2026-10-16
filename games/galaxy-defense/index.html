@@ -53,7 +53,7 @@
 .arcade-controls[data-mode=bubble] [data-action=attack]{flex:0 0 84px;width:84px;height:84px;min-height:84px;max-width:84px}.arcade-controls[data-mode=bubble] .control-actions{padding-right:8px}@media(max-width:360px){.arcade-controls[data-mode=bubble] [data-action=attack]{flex-basis:76px;width:76px;height:76px;min-height:76px;max-width:76px}}
 
 .arcade-controls[data-mode=bubble] .control-pad.dpad{flex-basis:146px;width:146px;height:146px}.arcade-controls[data-mode=bubble] .dpad .dpad-key{width:50px;height:51px}.arcade-controls[data-mode=bubble] .dpad .up,.arcade-controls[data-mode=bubble] .dpad .down{left:48px}.arcade-controls[data-mode=bubble] .dpad .left,.arcade-controls[data-mode=bubble] .dpad .right{top:47px}.arcade-controls[data-mode=bubble] .dpad-center{left:67px;top:67px}@media(max-width:360px){.arcade-controls[data-mode=bubble] .control-pad.dpad{flex-basis:130px;width:130px;height:130px}.arcade-controls[data-mode=bubble] .dpad .dpad-key{width:44px;height:45px}.arcade-controls[data-mode=bubble] .dpad .up,.arcade-controls[data-mode=bubble] .dpad .down{left:43px}.arcade-controls[data-mode=bubble] .dpad .left,.arcade-controls[data-mode=bubble] .dpad .right{top:42px}.arcade-controls[data-mode=bubble] .dpad-center{left:59px;top:59px}}
-.arcade-controls[data-mode=tetris] [data-action=hard]{flex:0 0 84px;width:84px;height:84px;min-height:84px;max-width:84px}.arcade-controls[data-mode=tetris] .control-actions{padding-right:8px}
+
 .touch-lane{border:0;background:none}.touch-lane span{display:none}
 
 :root{--ink:#eef0e8;--muted:#85909c;--panel:#1b222d;--line:#323b46;--accent:#d3ed90;color-scheme:dark}
@@ -74,7 +74,7 @@ html,body{background:#0c1017;color:var(--ink)}body{background:#0c1017}
 .arcade-controls .control-actions button[data-action=hard]{background:#c1d797;border:0;color:#202d1b}.arcade-controls .control-actions button[data-action=hard].pressed{background:#adc880}.arcade-controls .control-actions button[data-action=hard] small{color:#34442c}
 </style></head><body>
 <main class="shell"><canvas id="game" aria-label="좌우로 캐릭터를 움직이는 자동 발사 우주 슈팅 게임" tabindex="0"></canvas>
-<header class="hud"><div class="hudrow"><div class="metric score"><small>점수</small><strong id="score">000000</strong></div><div class="metric wave"><small>단계</small><strong id="wave">01</strong></div><div class="metric"><small>생명</small><div class="hearts" id="hearts">♥ ♥ ♥</div></div><button class="pause" id="pause" aria-label="일시정지">Ⅱ</button></div><div class="hudsub"><span class="combo" id="combo">✦ 준비 완료</span><span class="best"><span class="build-version">1.1.0 · </span>BEST <b id="best">000000</b></span></div><div class="stagebar"><span id="progress"></span></div><div class="top-guide"><span>↔ 손가락으로 좌우 이동</span><button type="button" id="quickExit" aria-label="게임 종료하고 캐릭터 선택으로 돌아가기">나가기</button></div></header>
+<header class="hud"><div class="hudrow"><div class="metric score"><small>점수</small><strong id="score">000000</strong></div><div class="metric wave"><small>단계</small><strong id="wave">01</strong></div><div class="metric"><small>생명</small><div class="hearts" id="hearts">♥ ♥ ♥</div></div><button class="pause" id="pause" aria-label="일시정지">Ⅱ</button></div><div class="hudsub"><span class="combo" id="combo">✦ 준비 완료</span><span class="best"><span class="build-version">1.2.0 · </span>BEST <b id="best">000000</b></span></div><div class="stagebar"><span id="progress"></span></div><div class="top-guide"><span>↔ 손가락으로 좌우 이동</span><button type="button" id="quickExit" aria-label="게임 종료하고 캐릭터 선택으로 돌아가기">나가기</button></div></header>
 <div class="banner" id="banner" role="status" aria-live="polite"><strong id="bannerTitle"></strong><small id="bannerSub"></small></div>
 <div id="touchLane" class="touch-lane" role="group" aria-label="손가락을 좌우로 움직여 캐릭터 조종"><span>↔ 이곳을 밀어 좌우 이동</span></div>
 <div class="bottom"><div class="power"><div class="power-title"><span id="heroHud">HERO · 부이</span><b id="weaponLabel">LV.1 / 10</b></div><div class="bars" id="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="power-meta"><span id="weaponName">황금 화살 미사일</span><span id="shieldLabel">◇ 실드 없음</span><span id="powerLabel">성장 준비</span></div></div><button class="bomb" id="bomb" aria-label="필살기 사용"><b id="bombCount">2</b><i>✹</i><span>필살기</span></button></div>
@@ -154,7 +154,7 @@ function size(){
  const height=Math.max(1,bottom-top);canvas.style.position='absolute';canvas.style.top=top+'px';canvas.style.height=height+'px';
  const d=Math.min(devicePixelRatio||1,2),width=Math.max(1,Math.round(r.width*d)),pixels=Math.max(1,Math.round(height*d));
  if(canvas.width!==width)canvas.width=width;if(canvas.height!==pixels)canvas.height=pixels;
- playView.top=shell.dataset.gameMode==='bubble'?0:shell.dataset.gameMode==='tetris'?125:0;
+ playView.top=shell.dataset.gameMode==='bubble'?0:shell.dataset.gameMode==='constellation'?120:0;
  playView.bottom=shell.dataset.gameMode==='galaga'?740:shell.dataset.gameMode==='bubble'?715:700;
  playView.scale=Math.min(r.width/W,height/(playView.bottom-playView.top));
  playView.x=(r.width-W*playView.scale)/2;playView.y=(height-(playView.bottom-playView.top)*playView.scale)/2-playView.top*playView.scale;
@@ -246,15 +246,15 @@ function drawPlayerShot(b){ctx.save();ctx.translate(b.x,b.y);if(b.style==='arrow
 function draw(){beginPlayfield();ctx.save();if(shake)ctx.translate(rnd(-shake/2,shake/2),rnd(-shake/2,shake/2));background();for(let d of drops)dropsDraw(d);for(let e of enemies)if(!e.dead)enemyDraw(e);bossDraw();for(let b of shots)drawPlayerShot(b);ctx.shadowBlur=0;for(let b of enemyShots){ctx.shadowColor='#ff72a9';ctx.shadowBlur=0;circle(b.x,b.y,b.r*1.85,'#ff7db580');circle(b.x,b.y,b.r*.75,'#fff0ed')}ctx.shadowBlur=0;playerDraw();for(let p of particles){ctx.globalAlpha=clamp(p.ttl/p.life,0,1);circle(p.x,p.y,p.rad,p.color)}ctx.globalAlpha=1;for(let f of floaters){ctx.globalAlpha=clamp(f.ttl,0,1);ctx.font='950 15px system-ui';ctx.fillStyle=f.color;ctx.shadowColor=f.color;ctx.shadowBlur=0;ctx.textAlign='center';ctx.fillText(f.s,f.x,f.y)}ctx.shadowBlur=0;ctx.globalAlpha=1;if(bombRing){ctx.strokeStyle='#c8ffff';ctx.globalAlpha=Math.max(0,1-bombRing.tt);ctx.lineWidth=7*(1-bombRing.tt)+1;ctx.shadowColor='#adffff';ctx.shadowBlur=0;ctx.beginPath();ctx.arc(player.x,player.y,bombRing.r,0,TWO);ctx.stroke();ctx.shadowBlur=0;ctx.globalAlpha=1}if(flash){ctx.globalAlpha=flash*.21;ctx.fillStyle='#e3fff9';ctx.fillRect(0,0,W,H);ctx.globalAlpha=1}ctx.restore()}
 // Three-game arcade; keep the original shooter and its online leaderboard.
 let gameMode='galaga',menuStep='hero',extra=null;
-const gameNames={galaga:'우주방어전',tetris:'스타블록',bubble:'별빛대작전'};
+const gameNames={galaga:'우주방어전',constellation:'별자리 잇기',bubble:'별빛대작전'};
 const games=document.createElement('div');games.className='game-options';games.hidden=true;
-games.innerHTML='<button data-game="galaga"><span class="game-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 5 29 26 20 21 11 26Z M20 21V34 M11 31h4 M25 31h4"/></svg></span><span class="game-copy"><b>우주방어전</b><small>슈팅</small></span><span class="game-arrow">↗</span></button><button data-game="tetris"><span class="game-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4 25 15 37 20 25 25 20 36 15 25 3 20 15 15Z" fill="none"/><circle cx="20" cy="20" r="5"/></svg></span><span class="game-copy"><b>스타블록</b><small>별자리 퍼즐</small></span><span class="game-arrow">↗</span></button><button data-game="bubble"><span class="game-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="m20 3 5 12 12 5-12 5-5 12-5-12-12-5 12-5Z" fill="none"/><path d="M5 5l8 7 M35 35l-8-7" stroke-width="2"/></svg></span><span class="game-copy"><b>별빛대작전</b><small>공명 액션</small></span><span class="game-arrow">↗</span></button>' ;
+games.innerHTML='<button data-game="galaga"><span class="game-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 5 29 26 20 21 11 26Z M20 21V34 M11 31h4 M25 31h4"/></svg></span><span class="game-copy"><b>우주방어전</b><small>슈팅</small></span><span class="game-arrow">↗</span></button><button data-game="constellation"><span class="game-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4 25 15 37 20 25 25 20 36 15 25 3 20 15 15Z" fill="none"/><circle cx="20" cy="20" r="5"/></svg></span><span class="game-copy"><b>별자리 잇기</b><small>손가락으로 별 연결</small></span><span class="game-arrow">↗</span></button><button data-game="bubble"><span class="game-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="m20 3 5 12 12 5-12 5-5 12-5-12-12-5 12-5Z" fill="none"/><path d="M5 5l8 7 M35 35l-8-7" stroke-width="2"/></svg></span><span class="game-copy"><b>별빛대작전</b><small>공명 액션</small></span><span class="game-arrow">↗</span></button>' ;
 ui.choices.after(games);
 const controls=document.createElement('div');controls.className='arcade-controls';controls.hidden=true;document.querySelector('.shell').append(controls);
 function modeBest(){return Number(readSafe('galaxy-'+gameMode+'-best','0'))||0}
 function extraRecords(){try{return JSON.parse(readSafe('galaxy-'+gameMode+'-records','[]'))}catch(_){return []}}
 function extraSummary(){ui.rankMyBest.textContent='내 최고 '+scoreText(modeBest())+'점';ui.rankTop3.replaceChildren();extraRecords().slice().sort((a,b)=>b.score-a.score).slice(0,3).forEach((r,i)=>ui.rankTop3.append(makeRankRow((i+1)+'위',r.name,r.hero,r.score,r.wave)));if(!ui.rankTop3.childElementCount)ui.rankTop3.innerHTML='<div class="rank-empty">이 게임의 첫 기록을 만들어 보세요</div>';document.querySelector('.rank-head-title').textContent=gameNames[gameMode]+' · 내 TOP 3';ui.rankTabGlobal.textContent='내 최고 TOP 10'}
-function menuGames(){menuStep='game';games.hidden=false;ui.choices.hidden=true;ui.pick.textContent='02  게임';ui.desc.textContent=heroes[selected].name+'와 함께할 게임을 고르세요.';ui.start.textContent=gameNames[gameMode]+' 플레이';ui.reselect.hidden=false;ui.reselect.textContent='← 캐릭터 변경';ui.resume.style.display='block';ui.resume.style.width='65px';ui.resume.style.height='75px';games.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.game===gameMode));if(gameMode==='galaga'){document.querySelector('.rank-head-title').textContent='랭킹 TOP 3';ui.rankTabGlobal.textContent='전체 TOP 10';showRankSummary()}else extraSummary();ui.selected.innerHTML='<b>'+heroes[selected].name+'</b> · '+['황금화살','몽돌','꽃'][selected]+(gameMode==='tetris'?' 블록':'');document.querySelector('.mini').textContent=gameMode==='galaga'?'좌우 이동 · 자동 발사 · 필살기':gameMode==='tetris'?'별빛 조각을 회전·배치하고 같은 빛 4개 이상 연결':'별빛 표식을 연결해 연쇄 공명 · 점프와 대시'}
+function menuGames(){menuStep='game';games.hidden=false;ui.choices.hidden=true;ui.pick.textContent='02  게임';ui.desc.textContent=heroes[selected].name+'와 함께할 게임을 고르세요.';ui.start.textContent=gameNames[gameMode]+' 플레이';ui.reselect.hidden=false;ui.reselect.textContent='← 캐릭터 변경';ui.resume.style.display='block';ui.resume.style.width='65px';ui.resume.style.height='75px';games.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.game===gameMode));if(gameMode==='galaga'){document.querySelector('.rank-head-title').textContent='랭킹 TOP 3';ui.rankTabGlobal.textContent='전체 TOP 10';showRankSummary()}else extraSummary();ui.selected.innerHTML='<b>'+heroes[selected].name+'</b> · '+(gameMode==='constellation'?['황금 길잡이','시간 지킴이','꽃빛 점수'][selected]:['황금화살','몽돌','꽃잎'][selected]);document.querySelector('.mini').textContent=gameMode==='galaga'?'좌우 이동 · 자동 발사 · 필살기':gameMode==='constellation'?'별 ①부터 순서대로 드래그 또는 터치 · 시간 안에 완성':'별빛 표식을 연결해 연쇄 공명 · 점프와 대시'}
 games.querySelectorAll('button').forEach(b=>b.onclick=()=>{gameMode=b.dataset.game;menuGames();sound('up')});
 function menuHero(){menuStep='hero';games.hidden=true;ui.choices.hidden=false;ui.resume.style.display='';ui.pick.textContent='01  캐릭터';ui.start.textContent='게임 고르기 →';ui.reselect.hidden=true;ui.desc.textContent='함께할 친구를 골라주세요.';ui.subtitle.textContent='세 친구의 별자리 모험';document.querySelector('.mini').textContent='캐릭터를 고른 뒤 게임을 선택하세요.';document.querySelector('.footer-note').textContent='세 가지 독창적인 PYODA 미니게임';}
 const originalRun=run,originalShow=show,originalExit=exitGame,originalStep=step,originalDraw=draw,originalHud=hud,originalFinalize=finalizeRecord,originalSummary=showRankSummary,originalRank=renderRankList;
@@ -263,10 +263,10 @@ renderRankList=function(){if(gameMode==='galaga'){originalRank();return}ui.rankL
 finalizeRecord=function(){if(gameMode==='galaga'){originalFinalize();return}if(sessionRecorded)return;sessionRecorded=true;if(score<=0)return;let rows=extraRecords();rows.unshift({name:nickname||'별여행자',hero:heroes[selected].name,score,wave,at:new Date().toISOString()});putSafe('galaxy-'+gameMode+'-records',JSON.stringify(rows.slice(0,12)));putSafe('galaxy-'+gameMode+'-best',String(Math.max(score,modeBest())));extraSummary()};
 show=function(mode){if(mode!=='playing')releaseControls();originalShow(mode);games.hidden=true;if(mode==='menu')menuHero();else if(mode==='gameover'){menuStep='game';menuGames();ui.title.textContent='게임 종료';ui.desc.textContent=scoreText(score)+'점 · '+gameNames[gameMode]+' · 단계 '+wave;}else if(mode==='paused'){ui.resume.style.display='block';ui.reselect.hidden=true;ui.desc.textContent=gameNames[gameMode]+' · '+scoreText(score)+'점';}};
 exitGame=function(){releaseControls();originalExit();extra=null;controls.hidden=true;document.querySelector('.bottom').style.display='';ui.touchLane.style.display='';gameMode='galaga';showRankSummary();hud()};
-run=function(){if(state==='menu'&&menuStep==='hero'){menuGames();return}if(gameMode==='galaga'){controls.hidden=true;document.querySelector('.bottom').style.display='';ui.touchLane.style.display='';originalRun();return}if(state==='paused'){state='playing';ui.overlay.classList.add('hidden');hud();return}sessionRecorded=false;score=0;wave=1;combo=0;input.left=input.right=input.touch=false;playerInit();ui.overlay.classList.add('hidden');state='playing';games.hidden=true;document.querySelector('.bottom').style.display='none';ui.touchLane.style.display='none';controls.hidden=false;canvas.setAttribute('aria-label',gameNames[gameMode]+' 게임 화면');if(gameMode==='tetris')initTetris();else initBubble();last=0;hud();draw();sound('up')};
-hud=function(){canvas.parentElement.dataset.gameMode=gameMode;size();if(gameMode==='galaga'){document.querySelector('.top-guide span').textContent='↔ 손가락으로 좌우 이동';originalHud();return}ui.score.textContent=scoreText(score);ui.best.textContent=scoreText(Math.max(score,modeBest()));ui.wave.textContent=String(wave).padStart(2,'0');ui.hearts.textContent=gameMode==='tetris'?'▦':'♥ '.repeat(Math.max(0,player.hp));ui.combo.textContent=gameMode==='tetris'?'별빛 '+(extra?.lines||0)+'개 · '+['황금화살','몽돌','꽃'][selected]+' 조각':heroes[selected].name+' · '+['황금화살','몽돌','꽃잎'][selected]+(extra?' · '+Math.ceil(extra.time||0)+'초':'');ui.pause.textContent=state==='paused'?'▶':'Ⅱ';document.querySelector('.top-guide span').textContent=gameMode==='tetris'?'↑ 회전 · ↓ 놓기 · 같은 별빛 4개 연결':'↖ ↗ 이동+점프 · 가까운 별빛구슬은 콤보 공명!';ui.progress.style.width='0%'};
-step=function(dt){if(gameMode==='galaga'){originalStep(dt);return}clock+=dt;if(alertRemain>0){alertRemain-=dt;if(alertRemain<=0)ui.banner.classList.remove('show')}if(state!=='playing'||!extra)return;stepControls(dt);if(state==='playing'){if(gameMode==='tetris')stepTetris(dt);else stepBubble(dt)}hud()};
-draw=function(){if(gameMode==='galaga'||!extra){originalDraw();return}beginPlayfield();background();if(gameMode==='tetris')drawTetris();else drawBubble()};
+run=function(){if(state==='menu'&&menuStep==='hero'){menuGames();return}if(gameMode==='galaga'){controls.hidden=true;document.querySelector('.bottom').style.display='';ui.touchLane.style.display='';originalRun();return}if(state==='paused'){state='playing';ui.overlay.classList.add('hidden');hud();return}sessionRecorded=false;score=0;wave=1;combo=0;input.left=input.right=input.touch=false;playerInit();ui.overlay.classList.add('hidden');state='playing';games.hidden=true;document.querySelector('.bottom').style.display='none';ui.touchLane.style.display='none';controls.hidden=gameMode==='constellation';canvas.setAttribute('aria-label',gameNames[gameMode]+' 게임 화면');if(gameMode==='constellation')initConstellation();else initBubble();last=0;hud();draw();sound('up')};
+hud=function(){canvas.parentElement.dataset.gameMode=gameMode;size();if(gameMode==='galaga'){document.querySelector('.top-guide span').textContent='↔ 손가락으로 좌우 이동';originalHud();return}ui.score.textContent=scoreText(score);ui.best.textContent=scoreText(Math.max(score,modeBest()));ui.wave.textContent=String(wave).padStart(2,'0');ui.hearts.textContent=gameMode==='constellation'?Math.ceil(extra?.time||0)+'초':'♥ '.repeat(Math.max(0,player.hp));ui.combo.textContent=gameMode==='constellation'?'별 '+(extra?.progress||0)+' / '+(extra?.count||0)+' 연결 · '+['황금 길잡이','시간 +5초','꽃빛 추가점수'][selected]:heroes[selected].name+' · '+['황금화살','몽돌','꽃잎'][selected]+(extra?' · '+Math.ceil(extra.time||0)+'초':'');ui.pause.textContent=state==='paused'?'▶':'Ⅱ';document.querySelector('.top-guide span').textContent=gameMode==='constellation'?'①부터 번호 순서대로 별을 이어보세요':'↖ ↗ 이동+점프 · 가까운 별빛구슬은 콤보 공명!';ui.progress.style.width=gameMode==='constellation'&&extra?Math.round(100*extra.progress/extra.count)+'%':'0%'};
+step=function(dt){if(gameMode==='galaga'){originalStep(dt);return}clock+=dt;if(alertRemain>0){alertRemain-=dt;if(alertRemain<=0)ui.banner.classList.remove('show')}if(state!=='playing'||!extra)return;if(gameMode==='constellation')stepConstellation(dt);else {stepControls(dt);stepBubble(dt)}hud()};
+draw=function(){if(gameMode==='galaga'||!extra){originalDraw();return}beginPlayfield();background();if(gameMode==='constellation')drawConstellation();else drawBubble()};
 const layoutObserver=new ResizeObserver(size);for(const el of [canvas.parentElement,document.querySelector('.hud'),document.querySelector('.bottom'),controls])layoutObserver.observe(el);
 const heldActions=new Map();
 function releaseControls(){heldActions.clear();input.left=input.right=input.touch=false;controls.querySelectorAll('button').forEach(b=>b.classList.remove('pressed'))}
@@ -274,7 +274,7 @@ function bindControls(){
  releaseControls();controls.replaceChildren();controls.dataset.mode=gameMode;
  const pad=document.createElement('div');pad.className='control-pad';const actions=document.createElement('div');actions.className='control-actions';controls.append(pad,actions);
  buildDpad(pad);
- const specs=gameMode==='tetris'?[['⤓','드롭','hard',false,actions]]:[['●','공명!','attack',true,actions]];
+ const specs=gameMode==='constellation'?[['⤓','드롭','hard',false,actions]]:[['●','공명!','attack',true,actions]];
  for(const [symbol,label,action,hold,group] of specs){
  const b=document.createElement('button');b.type='button';b.dataset.action=action;b.setAttribute('aria-label',label);b.innerHTML='<span>'+symbol+'</span><small>'+label+'</small>';group.append(b);let pressed=false,suppressUntil=0;
  const start=e=>{if(state!=='playing'||pressed)return;if(e.cancelable)e.preventDefault();pressed=true;suppressUntil=Number.MAX_SAFE_INTEGER;b.classList.add('pressed');if(e.pointerId!==undefined)try{b.setPointerCapture(e.pointerId)}catch(_){}if(gameMode==='bubble'&&(action==='left'||action==='right'))input[action]=true;else act(action);if(hold)heldActions.set(action,{time:0,first:true});};
@@ -285,8 +285,8 @@ function bindControls(){
 }
 function buildDpad(pad){
  pad.classList.add('dpad');pad.setAttribute('role','group');pad.setAttribute('aria-label','방향 패드');
- const dirs=[['up','▲',gameMode==='tetris'?'회전':'점프'],['left','◀','왼쪽'],['right','▶','오른쪽'],['down','▼',gameMode==='tetris'?'드롭':'발판 내려가기']];
- for(const [dir,symbol,label] of dirs){const b=document.createElement('button');b.type='button';b.className='dpad-key '+dir;b.dataset.dir=dir;b.setAttribute('aria-label','방향 '+label);b.innerHTML='<span>'+symbol+'</span>';pad.append(b);b.addEventListener('click',()=>{if(Date.now()>(pad.suppressUntil||0))act(dir==='up'?(gameMode==='tetris'?'rotate':'jump'):dir==='down'&&gameMode==='tetris'?'hard':dir)});}
+ const dirs=[['up','▲',gameMode==='constellation'?'회전':'점프'],['left','◀','왼쪽'],['right','▶','오른쪽'],['down','▼',gameMode==='constellation'?'드롭':'발판 내려가기']];
+ for(const [dir,symbol,label] of dirs){const b=document.createElement('button');b.type='button';b.className='dpad-key '+dir;b.dataset.dir=dir;b.setAttribute('aria-label','방향 '+label);b.innerHTML='<span>'+symbol+'</span>';pad.append(b);b.addEventListener('click',()=>{if(Date.now()>(pad.suppressUntil||0))act(dir==='up'?(gameMode==='constellation'?'rotate':'jump'):dir==='down'&&gameMode==='constellation'?'hard':dir)});}
  const center=document.createElement('i');center.className='dpad-center';pad.append(center);
  let pointer=null,current=null;
  function choose(x,y){const r=pad.getBoundingClientRect(),dx=x-(r.left+r.width/2),dy=y-(r.top+r.height/2);if(Math.hypot(dx,dy)<r.width*.10)return null;if(gameMode==='bubble'&&dy<-r.width*.14&&Math.abs(dx)>r.width*.14)return dx<0?'up-left':'up-right';if(Math.abs(dx)>Math.abs(dy))return dx<0?'left':'right';return dy<0?'up':'down'}
@@ -296,68 +296,171 @@ function buildDpad(pad){
  function end(){pointer=null;pad.suppressUntil=Date.now()+700;setDirection(null)}
  if(window.PointerEvent){pad.addEventListener('pointerdown',e=>{if(state!=='playing'||pointer!==null)return;e.preventDefault();pointer=e.pointerId;pad.suppressUntil=Number.MAX_SAFE_INTEGER;pad.setPointerCapture(pointer);setDirection(choose(e.clientX,e.clientY))});pad.addEventListener('pointermove',e=>{if(e.pointerId===pointer){e.preventDefault();setDirection(choose(e.clientX,e.clientY))}});pad.addEventListener('pointerup',end);pad.addEventListener('pointercancel',end);pad.addEventListener('lostpointercapture',end)}else{pad.addEventListener('touchstart',e=>{e.preventDefault();pad.suppressUntil=Date.now()+900;const t=e.changedTouches[0];pointer=t.identifier;setDirection(choose(t.clientX,t.clientY))},{passive:false});pad.addEventListener('touchmove',e=>{e.preventDefault();const t=[...e.changedTouches].find(t=>t.identifier===pointer);if(t)setDirection(choose(t.clientX,t.clientY))},{passive:false});pad.addEventListener('touchend',end);pad.addEventListener('touchcancel',end)}
 }
-function stepControls(dt){for(const [action,h] of heldActions){h.time+=dt;const wait=h.first?.22:(action==='attack'?.24:action==='down'?.045:.085);if(h.time>=wait){h.time=0;h.first=false;if(gameMode==='tetris'||action==='attack'||action==='jump')act(action)}}}
-function act(action){if(state!=='playing'||gameMode==='galaga'||!extra)return;if(gameMode==='tetris'){if(action==='left')moveT(-1);if(action==='right')moveT(1);if(action==='rotate')rotateT();if(action==='down'){if(!collideT(extra.p,extra.x,extra.y+1))score++;dropT()}if(action==='hard'){while(!collideT(extra.p,extra.x,extra.y+1)){extra.y++;score+=2}lockT()}}else{if(action==='jump')bubbleJump();if(action==='down'&&extra.p.ground&&extra.p.y+24<extra.platforms[0].y-2){extra.p.y+=5;extra.p.vy=70;extra.p.ground=false}if(action==='fire')fireBubble();if(action==='pop')popBubble();if(action==='attack'){if(!popBubble(true))fireBubble()}}hud();draw()}
-// Original constellation puzzle: 3/5-cell shards, not seven tetrominoes.
-const SHAPES=[
- [[1,1,1]],[[1,0],[1,1]],[[0,1],[1,1]],
- [[1,1,1,1,1]],[[1,1,1],[0,1,0],[0,1,0]],
- [[1,0,1],[1,1,1]],[[1,1,1],[1,0,0],[1,0,0]],
- [[0,1,0],[1,1,1],[0,1,0]]
-];
-function nextShape(){
- if(!extra.bag.length){extra.bag=SHAPES.map((_,i)=>i);for(let i=extra.bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[extra.bag[i],extra.bag[j]]=[extra.bag[j],extra.bag[i]]}}
- return SHAPES[extra.bag.pop()].map(r=>r.slice());
-}
-function initTetris(){extra={board:Array.from({length:20},()=>Array(10).fill(0)),bag:[],lines:0,timer:0,repeat:0,x:3,y:0,color:0,nextColor:Math.floor(Math.random()*3)};extra.next=nextShape();spawnT();bindControls()}
-function collideT(p,x,y){return p.some((r,j)=>r.some((v,i)=>v&&(x+i<0||x+i>=10||y+j>=20||(y+j>=0&&extra.board[y+j][x+i]))))}
-function spawnT(){extra.p=extra.next;extra.color=extra.nextColor;extra.next=nextShape();extra.nextColor=Math.floor(Math.random()*3);extra.x=Math.floor((10-extra.p[0].length)/2);extra.y=0;extra.timer=0;if(collideT(extra.p,extra.x,extra.y))show('gameover')}
-function moveT(dx){if(!collideT(extra.p,extra.x+dx,extra.y))extra.x+=dx}
-function rotateT(){let p=extra.p[0].map((_,i)=>extra.p.map(r=>r[i]).reverse());for(const dx of [0,-1,1,-2,2])if(!collideT(p,extra.x+dx,extra.y)){extra.p=p;extra.x+=dx;sound('fire');return}}
-function dropT(){if(!collideT(extra.p,extra.x,extra.y+1)){extra.y++;return}lockT()}
-// Clear chains of four or more matching light shards horizontally or vertically;
- // leftover pieces fall individually and may create another constellation.
-function clearConstellations(){
- let chain=0,total=0;
- while(chain<8){
-  const marked=new Set(),board=extra.board;
-  for(let y=0;y<20;y++)for(let x=0;x<10;x++){
-   const v=board[y][x];if(!v)continue;
-   if(x===0||board[y][x-1]!==v){let n=1;while(x+n<10&&board[y][x+n]===v)n++;if(n>=4)for(let k=0;k<n;k++)marked.add(y*10+x+k)}
-   if(y===0||board[y-1][x]!==v){let n=1;while(y+n<20&&board[y+n][x]===v)n++;if(n>=4)for(let k=0;k<n;k++)marked.add((y+k)*10+x)}
-  }
-  if(!marked.size)break;
-  for(const id of marked)board[Math.floor(id/10)][id%10]=0;
-  for(let x=0;x<10;x++){const remain=[];for(let y=19;y>=0;y--)if(board[y][x])remain.push(board[y][x]);for(let y=19;y>=0;y--)board[y][x]=remain[19-y]||0}
-  chain++;total+=marked.size;score+=marked.size*(40+wave*10)*chain;
+
+function stepControls(dt){
+ for(const [action,h] of heldActions){
+  h.time+=dt;
+  const wait=h.first?.22:(action==='attack'?.24:action==='down'?.045:.085);
+  if(h.time>=wait){h.time=0;h.first=false;if(action==='attack'||action==='jump')act(action)}
  }
- if(total){extra.lines+=total;wave=1+Math.floor(extra.lines/24);sound('kill');banner('별자리 공명 ×'+chain,'별빛 조각 '+total+'개 정화',.85)}
 }
-function lockT(){
- extra.p.forEach((r,j)=>r.forEach((v,i)=>{if(v&&extra.y+j>=0)extra.board[extra.y+j][extra.x+i]=extra.color+1}));
- clearConstellations();spawnT();
+function act(action){
+ if(state!=='playing'||gameMode!=='bubble'||!extra)return;
+ if(action==='jump')bubbleJump();
+ if(action==='down'&&extra.p.ground&&extra.p.y+24<extra.platforms[0].y-2){extra.p.y+=5;extra.p.vy=70;extra.p.ground=false}
+ if(action==='fire')fireBubble();
+ if(action==='pop')popBubble();
+ if(action==='attack'){if(!popBubble(true))fireBubble()}
+ hud();draw();
 }
-function stepTetris(dt){extra.timer+=dt;extra.repeat-=dt;if(extra.repeat<=0&&(input.left||input.right)){moveT(Number(input.right)-Number(input.left));extra.repeat=.12}if(extra.timer>=Math.max(.1,.75-(wave-1)*.065)){extra.timer=0;dropT()}}
-function token(x,y,s,ghost=false,color=0){
- ctx.save();ctx.translate(x,y);ctx.globalAlpha=ghost?.24:1;
- const palette=['#e7ba66','#88bdc6','#d8a0ca'],cc=palette[color%3];
- ctx.fillStyle=ghost?'#38475a':cc;ctx.strokeStyle=ghost?'#a8bdc8':'#e9f5fa';ctx.lineWidth=1.2;
- ctx.beginPath();ctx.moveTo(0,-s*.48);ctx.lineTo(s*.45,0);ctx.lineTo(0,s*.48);ctx.lineTo(-s*.45,0);ctx.closePath();ctx.fill();ctx.stroke();
- ctx.scale(s/46,s/46);drawPlayerShot({x:0,y:0,style:['arrow','pebble','petal'][selected],vy:-1,vx:0,spin:clock*.15});ctx.restore();
+
+
+// 《별자리 잇기》: original one-touch constellation game, independent of block puzzles.
+// World coordinates match the existing 420-unit PYODA mobile canvas.
+const CONSTELLATION_PATHS=[
+ [[.09,.24],[.30,.10],[.46,.37],[.76,.13],[.91,.40],[.65,.58],[.85,.81],[.40,.87],[.15,.66]],
+ [[.12,.67],[.24,.27],[.51,.13],[.79,.32],[.91,.71],[.59,.87],[.32,.71],[.10,.90],[.55,.46]],
+ [[.16,.16],[.46,.11],[.80,.23],[.67,.50],[.91,.83],[.54,.89],[.29,.59],[.08,.79],[.43,.35]],
+ [[.11,.42],[.27,.13],[.57,.23],[.85,.11],[.74,.48],[.92,.75],[.58,.86],[.23,.79],[.39,.48]]
+];
+function constellationPosition(star){
+ const drifting=wave>=4?(4+Math.min(8,(wave-4)*.7)):0;
+ return {x:star.x+Math.sin(clock*(.65+wave*.025)+star.seed)*drifting,
+         y:star.y+Math.cos(clock*(.52+wave*.02)+star.seed*1.5)*drifting*.65};
 }
-function drawTetris(){
- const s=23,x=35,y=153;round(x-3,y-3,236,466,8,'#0b1018');
- ctx.strokeStyle='#ffffff0b';
- for(let j=0;j<=20;j++){ctx.beginPath();ctx.moveTo(x,y+j*s);ctx.lineTo(x+230,y+j*s);ctx.stroke()}
- for(let i=0;i<=10;i++){ctx.beginPath();ctx.moveTo(x+i*s,y);ctx.lineTo(x+i*s,y+460);ctx.stroke()}
- extra.board.forEach((r,j)=>r.forEach((v,i)=>{if(v)token(x+i*s+s/2,y+j*s+s/2,s,false,v-1)}));
- let gy=extra.y;while(!collideT(extra.p,extra.x,gy+1))gy++;
- extra.p.forEach((r,j)=>r.forEach((v,i)=>{if(v){token(x+(extra.x+i)*s+s/2,y+(gy+j)*s+s/2,s,true,extra.color);token(x+(extra.x+i)*s+s/2,y+(extra.y+j)*s+s/2,s,false,extra.color)}}));
- ctx.font='bold 12px system-ui';ctx.fillStyle='#c8ddfa';ctx.textAlign='center';ctx.fillText('다음 별조각',345,179);
- extra.next.forEach((r,j)=>r.forEach((v,i)=>{if(v)token(298+i*20,215+j*20,19,false,extra.nextColor)}));
- if(imgReady(selected))ctx.drawImage(heroImgs[selected],298,310,100,135);
- ctx.fillStyle=heroes[selected].color;ctx.fillText(heroes[selected].name,345,460);ctx.fillText(extra.lines+'개 정화',345,488);
+function constellationStage(){
+ if(!extra)return;
+ extra.count=Math.min(9,4+Math.floor((wave-1)/2));
+ const pattern=CONSTELLATION_PATHS[(wave-1)%CONSTELLATION_PATHS.length];
+ extra.nodes=pattern.slice(0,extra.count).map((p,i)=>({
+  x:57+p[0]*306,y:170+p[1]*430,
+  seed:i*1.93+wave*.47,index:i,target:true
+ }));
+ // Non-interactive guide stars are decor and can never block the correct one.
+ extra.decor=[];
+ for(let k=0;k<24;k++){
+  const x=35+rnd(0,350),y=166+rnd(0,455);
+  if(extra.nodes.every(p=>Math.hypot(x-p.x,y-p.y)>40))extra.decor.push({x,y,a:rnd(.19,.5),r:rnd(.6,2.2)});
+ }
+ extra.progress=0;extra.pointer=null;extra.drag=false;extra.hover=null;
+ extra.wait=0;extra.lastMiss=-10;
+ extra.timeMax=Math.max(18,34-wave*1.2)+(selected===1?5:0);
+ extra.time=extra.timeMax;
+ banner('별자리 '+wave+'단계','①부터 '+extra.count+'개의 별을 이어주세요',1.25);
+ hud();
 }
+function initConstellation(){
+ extra={nodes:[],decor:[],count:0,progress:0,time:0,timeMax:0,pointer:null,drag:false,wait:0,lastMiss:-10,hover:null,finished:0};
+ constellationStage();
+ // No D-pad: directly draw lines between stars using a finger, stylus or mouse.
+ controls.hidden=true;
+}
+function constellationComplete(){
+ if(!extra||extra.wait>0||state!=='playing')return;
+ const bonus=selected===2?1.3:1;
+ const points=Math.round((350+wave*90+extra.time*19)*bonus);
+ score+=points;
+ extra.finished++;
+ extra.wait=.86;
+ sound('up');vibrate(30);
+ banner('별자리 완성!','+'+points.toLocaleString()+'점 · 다음 별자리',.8);
+}
+function constellationHitAt(x,y,fromPointer=false){
+ if(state!=='playing'||gameMode!=='constellation'||!extra||extra.wait>0)return false;
+ const e=extra;
+ if(e.progress>=e.count)return false;
+ const target=e.nodes[e.progress],p=constellationPosition(target);
+ const radius=selected===0?40:33;
+ if(Math.hypot(x-p.x,y-p.y)<=radius){
+  e.progress++;
+  sound('fire');
+  if(e.progress===e.count)constellationComplete();
+  return true;
+ }
+ // Penalize only an intentional incorrect tap, not an accidental pass during dragging.
+ if(fromPointer&&clock-e.lastMiss>.46&&e.nodes.some((n,i)=>i>e.progress&&Math.hypot(x-constellationPosition(n).x,y-constellationPosition(n).y)<25)){
+  e.lastMiss=clock;e.time=Math.max(0,e.time-1.4);sound('damage');
+ }
+ return false;
+}
+function constellationSegment(ax,ay,bx,by){
+ if(!extra||extra.progress===0||extra.wait>0)return;
+ // A fast swipe may jump over a point between two pointer events.
+ for(let attempt=0;attempt<4&&extra.progress<extra.count;attempt++){
+  const p=constellationPosition(extra.nodes[extra.progress]);
+  const dx=bx-ax,dy=by-ay,len2=dx*dx+dy*dy;
+  const t=len2?clamp(((p.x-ax)*dx+(p.y-ay)*dy)/len2,0,1):0;
+  const nearX=ax+dx*t,nearY=ay+dy*t;
+  if(Math.hypot(p.x-nearX,p.y-nearY)>(selected===0?40:33))break;
+  if(!constellationHitAt(p.x,p.y))break;
+ }
+}
+function stepConstellation(dt){
+ if(!extra)return;
+ if(extra.wait>0){
+  extra.wait-=dt;
+  if(extra.wait<=0){wave++;constellationStage()}
+  return;
+ }
+ extra.time=Math.max(0,extra.time-dt);
+ if(extra.time<=0){show('gameover');return}
+}
+function drawConstellation(){
+ if(!extra)return;
+ const e=extra,hero=heroes[selected],cc=hero.color;
+ ctx.save();
+ const gradient=ctx.createRadialGradient(210,385,20,210,385,340);
+ gradient.addColorStop(0,'#253551');gradient.addColorStop(.54,'#142333');gradient.addColorStop(1,'#10151f');
+ ctx.fillStyle=gradient;ctx.fillRect(0,125,W,575);
+ for(const d of e.decor){ctx.globalAlpha=d.a*(.8+.2*Math.sin(clock*2+d.x));circle(d.x,d.y,d.r,'#d0e5e8')}
+ ctx.globalAlpha=1;
+ ctx.textAlign='center';ctx.fillStyle='#d4ded5';ctx.font='700 19px system-ui';
+ ctx.fillText('별자리 '+String(wave).padStart(2,'0'),210,155);
+ ctx.fillStyle='#97a9b2';ctx.font='12px system-ui';
+ ctx.fillText(e.wait>0?'별빛이 모이고 있어요':'별을 순서대로 연결해 완성하세요',210,181);
+ // Hint line: very faint once the player has learned the game.
+ if(wave<=3||e.progress>0){
+  ctx.save();ctx.strokeStyle=cc;ctx.globalAlpha=wave<=3?.13:.055;
+  ctx.lineWidth=1.5;ctx.setLineDash([3,7]);ctx.beginPath();
+  e.nodes.forEach((n,i)=>{const p=constellationPosition(n);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y)});
+  ctx.stroke();ctx.setLineDash([]);ctx.restore();
+ }
+ // Completed route stays visible while the next point pulses.
+ if(e.progress>1){
+  ctx.strokeStyle=cc;ctx.lineWidth=4;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
+  e.nodes.slice(0,e.progress).forEach((n,i)=>{const p=constellationPosition(n);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y)});
+  ctx.stroke();
+ }
+ // Stroke preview follows the moving finger.
+ if(e.drag&&e.progress>0&&e.progress<e.count&&e.hover){
+  const p=constellationPosition(e.nodes[e.progress-1]);
+  ctx.save();ctx.strokeStyle=cc;ctx.globalAlpha=.45;ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(e.hover.x,e.hover.y);ctx.stroke();ctx.restore();
+ }
+ for(let i=0;i<e.nodes.length;i++){
+  const p=constellationPosition(e.nodes[i]),done=i<e.progress,next=i===e.progress;
+  const pulse=1+.07*Math.sin(clock*5+i);
+  ctx.save();ctx.translate(p.x,p.y);
+  if(next&&e.wait<=0){
+   ctx.strokeStyle=cc;ctx.globalAlpha=.44;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,29*pulse,0,TWO);ctx.stroke();
+  }
+  ctx.globalAlpha=done?1:next?1:.73;
+  circle(0,0,done?17:16,done?cc:'#293747');
+  ctx.strokeStyle=done?cc:next?'#efffec':'#9baab5';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(0,0,done?18:17,0,TWO);ctx.stroke();
+  ctx.fillStyle=done?'#142537':next?'#f0fff4':'#e0e8ee';
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='800 13px system-ui';
+  ctx.fillText(done?'✓':String(i+1),0,1);
+  ctx.restore();
+ }
+ if(imgReady(selected)){ctx.save();ctx.globalAlpha=.8;ctx.drawImage(heroImgs[selected],10,609,56,73);ctx.restore()}
+ ctx.textAlign='left';ctx.fillStyle='#d8e6d7';ctx.font='bold 11px system-ui';
+ ctx.fillText(['부이 · 가까운 별 자동 보정','몽돌이 · 시간 +5초','소랑이 · 완료 점수 +30%'][selected],75,651);
+ ctx.fillStyle='#91a1ac';ctx.font='11px system-ui';
+ ctx.fillText(e.progress+' / '+e.count+'개 연결',75,672);
+ ctx.restore();
+}
+
 function initBubble(){extra={p:{x:55,y:640,vy:0,ground:false,face:1},platforms:[],foes:[],bubbles:[],inv:2,cool:0,wait:0,effects:[]};bubbleStage();bindControls()}
 function bubbleStage(){
  const layouts=[[[20,145],[255,145],[100,220],[20,120],[280,120]],[[35,130],[255,130],[115,190],[35,110],[275,110]],[[10,165],[245,165],[75,270],[40,120],[260,120]]];
@@ -420,12 +523,49 @@ for(const h of extra.hazards){circle(h.x,h.y,7,'#ff9765');circle(h.x,h.y,3,'#fff
 for(const e of extra.effects){ctx.save();ctx.globalAlpha=e.t/e.life;ctx.strokeStyle=e.c;ctx.lineWidth=2+e.t*3;ctx.beginPath();ctx.arc(e.x,e.y,18+(1-e.t/e.life)*64,0,TWO);ctx.stroke();for(let i=0;i<7;i++){const a=i*TWO/7,r=20+(1-e.t/e.life)*62;ctx.save();ctx.translate(e.x+Math.cos(a)*r,e.y+Math.sin(a)*r);ctx.scale(.42,.42);drawPlayerShot({x:0,y:0,style:e.style,vx:Math.cos(a),vy:Math.sin(a),spin:a+clock*3});ctx.restore()}ctx.restore()}
 if(extra.chainBadge&&extra.chainBadge.t>0){ctx.save();ctx.globalAlpha=Math.min(1,extra.chainBadge.t*2);ctx.textAlign='center';ctx.fillStyle=heroes[selected].color;ctx.font='900 29px system-ui';ctx.fillText('콤보 ×'+extra.chainBadge.n,W/2,188);ctx.font='bold 14px system-ui';ctx.fillText('+'+scoreText(extra.chainBadge.points)+'점',W/2,213);ctx.restore()}
 const p=extra.p;if(extra.inv<=0||Math.floor(clock*9)%2===0){if(imgReady(selected)){ctx.save();ctx.translate(p.x,p.y);ctx.scale(p.face<0?-1:1,1);ctx.drawImage(heroImgs[selected],-27,-39,54,65);ctx.restore()}}ctx.font='12px system-ui';ctx.fillStyle='#b7d6ea';ctx.textAlign='center';ctx.fillText('↖ ↗ 이동+점프 · 공명! 길게 · 콤보 공명!',W/2,668)}
-let boardGesture=null;
-canvas.addEventListener('pointerdown',e=>{if(state!=='playing'||gameMode!=='tetris')return;e.preventDefault();canvas.setPointerCapture(e.pointerId);boardGesture={x:e.clientX,y:e.clientY,lastX:e.clientX,moved:false}});
-canvas.addEventListener('pointermove',e=>{if(!boardGesture||gameMode!=='tetris')return;let dx=e.clientX-boardGesture.lastX;const unit=playView.scale*25;if(Math.abs(dx)>unit){act(dx>0?'right':'left');boardGesture.lastX=e.clientX;boardGesture.moved=true}});
-canvas.addEventListener('pointerup',e=>{if(!boardGesture)return;const g=boardGesture;boardGesture=null;if(e.clientY-g.y>65)act('hard');else if(!g.moved&&Math.abs(e.clientY-g.y)<20)act('rotate')});canvas.addEventListener('pointercancel',()=>boardGesture=null);
+
+let constellationPointer=null;
+function constellationCoords(e){
+ const r=canvas.getBoundingClientRect();
+ return {x:(e.clientX-r.left-playView.x)/playView.scale,
+         y:(e.clientY-r.top-playView.y)/playView.scale};
+}
+function starPointerStart(e){
+ if(gameMode!=='constellation'||state!=='playing'||!extra||extra.wait>0)return;
+ if(e.cancelable)e.preventDefault();
+ const p=constellationCoords(e);const hit=constellationHitAt(p.x,p.y,true);
+ constellationPointer={id:e.pointerId,at:p,last:p};
+ extra.drag=hit||extra.progress>0;extra.hover=p;
+ if(e.pointerId!==undefined)try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+}
+function starPointerMove(e){
+ if(!constellationPointer||gameMode!=='constellation'||state!=='playing'||!extra)return;
+ if(e.cancelable)e.preventDefault();
+ const p=constellationCoords(e);
+ if(extra.drag)constellationSegment(constellationPointer.last.x,constellationPointer.last.y,p.x,p.y);
+ constellationPointer.last=p;extra.hover=p;
+}
+function starPointerEnd(e){
+ if(!constellationPointer||gameMode!=='constellation')return;
+ const p=constellationCoords(e);
+ if(extra&&extra.drag)constellationSegment(constellationPointer.last.x,constellationPointer.last.y,p.x,p.y);
+ constellationPointer=null;
+ if(extra){extra.drag=false;extra.hover=null}
+}
+canvas.addEventListener('pointerdown',starPointerStart);
+canvas.addEventListener('pointermove',starPointerMove);
+canvas.addEventListener('pointerup',starPointerEnd);
+canvas.addEventListener('pointercancel',()=>{constellationPointer=null;if(extra){extra.drag=false;extra.hover=null}});
+if(!window.PointerEvent){
+ const touchConvert=t=>({clientX:t.clientX,clientY:t.clientY,preventDefault(){},cancelable:false});
+ canvas.addEventListener('touchstart',e=>{if(gameMode==='constellation'&&e.touches.length){e.preventDefault();starPointerStart(touchConvert(e.touches[0]))}},{passive:false});
+ canvas.addEventListener('touchmove',e=>{if(gameMode==='constellation'&&e.touches.length){e.preventDefault();starPointerMove(touchConvert(e.touches[0]))}},{passive:false});
+ canvas.addEventListener('touchend',e=>{if(gameMode==='constellation'&&e.changedTouches.length){e.preventDefault();starPointerEnd(touchConvert(e.changedTouches[0]))}},{passive:false});
+ canvas.addEventListener('touchcancel',()=>{constellationPointer=null;if(extra){extra.drag=false;extra.hover=null}});
+}
+
 // Capture alternate-game keys before the original shooter's handlers.
-addEventListener('keydown',e=>{if(gameMode==='galaga')return;const map=gameMode==='tetris'?{ArrowLeft:'left',ArrowRight:'right',ArrowUp:'rotate',ArrowDown:'down',Space:'hard'}:{Space:'jump',ArrowUp:'jump',KeyX:'attack',KeyZ:'pop'};if(map[e.code]){e.preventDefault();e.stopImmediatePropagation();if(!e.repeat||['ArrowLeft','ArrowRight','ArrowDown'].includes(e.code))act(map[e.code])}},true);
+addEventListener('keydown',e=>{if(gameMode==='galaga')return;const map=gameMode==='constellation'?{}:{Space:'jump',ArrowUp:'jump',KeyX:'attack',KeyZ:'pop'};if(map[e.code]){e.preventDefault();e.stopImmediatePropagation();if(!e.repeat||['ArrowLeft','ArrowRight','ArrowDown'].includes(e.code))act(map[e.code])}},true);
 ui.reselect.addEventListener('click',e=>{if(state==='menu'||state==='gameover'){e.stopImmediatePropagation();state='menu';menuHero()}},true);
 
 function loop(ms){let dt=last?clamp((ms-last)/1000,0,.04):.016;last=ms;step(dt);draw();requestAnimationFrame(loop)}
@@ -448,6 +588,6 @@ if(!window.PointerEvent){[canvas,ui.touchLane].forEach(function(el){el.addEventL
 })();addEventListener('blur',()=>{input.left=false;input.right=false;input.touch=false;if(state==='playing')show('paused')});document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')show('paused')});
 playerInit();initRecords();show('menu');requestAnimationFrame(loop);
 // Read-only state for regression/smoke tests. Debug wave jump is enabled only with ?test=1.
-Object.defineProperty(window,'galaxyDebug',{get:()=>({state,gameMode,tetris:gameMode==='tetris'&&extra?{x:extra.x,y:extra.y,piece:extra.p,next:extra.next,lines:extra.lines,occupied:extra.board.flat().filter(Boolean).length}:null,bubble:gameMode==='bubble'&&extra?{x:extra.p.x,y:extra.p.y,bubbles:extra.bubbles.length,trapped:extra.foes.filter(e=>e.trapped&&e.alive).length,remaining:extra.foes.filter(e=>e.alive).length}:null,hero:heroes[selected].name,weapon:(player?player.weapon:undefined),mastery:(player?player.mastery:undefined),wave,bossTier:(boss?boss.tier:undefined)||null,bossPhase:(boss?boss.phase:undefined)||null,bossHp:(boss?boss.hp:undefined)||null,score,bombs:(player?player.bombs:undefined),lives:(player?player.hp:undefined),playerX:(player?player.x:undefined),playerY:(player?player.y:undefined),enemies:enemies.filter(e=>!e.dead).length,enemyShots:enemyShots.length})});
+Object.defineProperty(window,'galaxyDebug',{get:()=>({state,gameMode,constellation:gameMode==='constellation'&&extra?{progress:extra.progress,count:extra.count,time:extra.time,stage:wave,finished:extra.finished}:null,bubble:gameMode==='bubble'&&extra?{x:extra.p.x,y:extra.p.y,bubbles:extra.bubbles.length,trapped:extra.foes.filter(e=>e.trapped&&e.alive).length,remaining:extra.foes.filter(e=>e.alive).length}:null,hero:heroes[selected].name,weapon:(player?player.weapon:undefined),mastery:(player?player.mastery:undefined),wave,bossTier:(boss?boss.tier:undefined)||null,bossPhase:(boss?boss.phase:undefined)||null,bossHp:(boss?boss.hp:undefined)||null,score,bombs:(player?player.bombs:undefined),lives:(player?player.hp:undefined),playerX:(player?player.x:undefined),playerY:(player?player.y:undefined),enemies:enemies.filter(e=>!e.dead).length,enemyShots:enemyShots.length})});
 if(new URLSearchParams(location.search).get('test')==='1')window.galaxyTest={wave(n){if(state!=='playing')run();wave=n;spawnWave();},damageBoss(n){if(boss)bossDamage(n,boss.x,boss.y)},upgrade(n=1){for(let i=0;i<n;i++)levelUp()},killEnemies(){enemies.forEach(e=>{e.hp=0;kill(e)})},invincible(){player.inv=99999}};
 })();</script></body></html>
