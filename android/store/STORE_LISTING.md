@@ -3,7 +3,7 @@
 앱 이름: 은하 방어선
 분류: 게임 / 아케이드
 가격: 유료 (최종 판매가 미정 · Play Console에서 설정)
-버전: 1.2.2
+버전: 1.2.3
 패키지명: com.pyoda.galaxydefense
 
 ## 짧은 설명
@@ -40,3 +40,22 @@
 - 콘텐츠 등급과 대상 연령
 
 다른 상용 게임의 공식판·제휴작임을 암시하지 않습니다.
+
+## English (en-US) — Google Play listing
+
+**App name:** Galaxy Defense
+
+**Short description:** Three heroes, three original arcade games. Shoot, connect stars, and shine!
+
+**Full description:**
+Discover Galaxy Defense, a collection of three original mini-games featuring Bui, Mongdori, and Sorangi.
+
+Space Defense — Defend the galaxy against crystal enemies and evolving nebula bosses.
+Connect the Stars — Link glowing symbols in the right order to complete constellations.
+Starlight Mission — Jump between platforms and trigger brilliant chain reactions.
+
+Choose your hero, beat your personal best, and take on new stages. Play the main games offline, with optional online rankings. No ads or in-app purchases. Pay once to play all three games.
+
+**Localization:** Korean and English UI; automatically follows the device language on first launch. Change manually from the pause or menu screen.
+
+**Important:** Publishing in a country still requires that the country is enabled in Google Play Console. An English listing is independent of the app's in-game language.
