@@ -28,3 +28,5 @@
 - 운영자 실제 법적 표시명은 Google Play 개발자 표시명과 일치하는지 출시 전 확인.
 - 이용자 삭제요청 접수 시 서버 관리자(Supabase)가 직접 해당 식별자/기록을 조회해 삭제해야 함. 랭킹 끄기는 과거 기록 삭제가 아님.
 - 웹 데모는 Android와 달리 온라인 점수 조회/업로드가 기본 동작할 수 있음. 공개 방침에 별도 명시함.
+
+- 데이터 삭제 요청 전용 페이지: https://jeyukida-eng.github.io/pyeoda/games/galaxy-defense/delete-data.html
