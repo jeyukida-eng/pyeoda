@@ -53,7 +53,7 @@
 .arcade-controls[data-mode=bubble] [data-action=attack]{flex:0 0 84px;width:84px;height:84px;min-height:84px;max-width:84px}.arcade-controls[data-mode=bubble] .control-actions{padding-right:8px}@media(max-width:360px){.arcade-controls[data-mode=bubble] [data-action=attack]{flex-basis:76px;width:76px;height:76px;min-height:76px;max-width:76px}}
 
 .arcade-controls[data-mode=bubble] .control-pad.dpad{flex-basis:146px;width:146px;height:146px}.arcade-controls[data-mode=bubble] .dpad .dpad-key{width:50px;height:51px}.arcade-controls[data-mode=bubble] .dpad .up,.arcade-controls[data-mode=bubble] .dpad .down{left:48px}.arcade-controls[data-mode=bubble] .dpad .left,.arcade-controls[data-mode=bubble] .dpad .right{top:47px}.arcade-controls[data-mode=bubble] .dpad-center{left:67px;top:67px}@media(max-width:360px){.arcade-controls[data-mode=bubble] .control-pad.dpad{flex-basis:130px;width:130px;height:130px}.arcade-controls[data-mode=bubble] .dpad .dpad-key{width:44px;height:45px}.arcade-controls[data-mode=bubble] .dpad .up,.arcade-controls[data-mode=bubble] .dpad .down{left:43px}.arcade-controls[data-mode=bubble] .dpad .left,.arcade-controls[data-mode=bubble] .dpad .right{top:42px}.arcade-controls[data-mode=bubble] .dpad-center{left:59px;top:59px}}
-.arcade-controls[data-mode=tetris] [data-action=hard]{flex:0 0 84px;width:84px;height:84px;min-height:84px;max-width:84px}.arcade-controls[data-mode=tetris] .control-actions{padding-right:8px}
+
 .touch-lane{border:0;background:none}.touch-lane span{display:none}
 
 :root{--ink:#eef0e8;--muted:#85909c;--panel:#1b222d;--line:#323b46;--accent:#d3ed90;color-scheme:dark}
@@ -74,7 +74,7 @@ html,body{background:#0c1017;color:var(--ink)}body{background:#0c1017}
 .arcade-controls .control-actions button[data-action=hard]{background:#c1d797;border:0;color:#202d1b}.arcade-controls .control-actions button[data-action=hard].pressed{background:#adc880}.arcade-controls .control-actions button[data-action=hard] small{color:#34442c}
 </style></head><body>
 <main class="shell"><canvas id="game" aria-label="좌우로 캐릭터를 움직이는 자동 발사 우주 슈팅 게임" tabindex="0"></canvas>
-<header class="hud"><div class="hudrow"><div class="metric score"><small>점수</small><strong id="score">000000</strong></div><div class="metric wave"><small>단계</small><strong id="wave">01</strong></div><div class="metric"><small>생명</small><div class="hearts" id="hearts">♥ ♥ ♥</div></div><button class="pause" id="pause" aria-label="일시정지">Ⅱ</button></div><div class="hudsub"><span class="combo" id="combo">✦ 준비 완료</span><span class="best">BEST <b id="best">000000</b></span></div><div class="stagebar"><span id="progress"></span></div><div class="top-guide"><span>↔ 손가락으로 좌우 이동</span><button type="button" id="quickExit" aria-label="게임 종료하고 캐릭터 선택으로 돌아가기">나가기</button></div></header>
+<header class="hud"><div class="hudrow"><div class="metric score"><small>점수</small><strong id="score">000000</strong></div><div class="metric wave"><small>단계</small><strong id="wave">01</strong></div><div class="metric"><small>생명</small><div class="hearts" id="hearts">♥ ♥ ♥</div></div><button class="pause" id="pause" aria-label="일시정지">Ⅱ</button></div><div class="hudsub"><span class="combo" id="combo">✦ 준비 완료</span><span class="best"><span class="build-version">1.2.2 · </span>BEST <b id="best">000000</b></span></div><div class="stagebar"><span id="progress"></span></div><div class="top-guide"><span>↔ 손가락으로 좌우 이동</span><button type="button" id="quickExit" aria-label="게임 종료하고 캐릭터 선택으로 돌아가기">나가기</button></div></header>
 <div class="banner" id="banner" role="status" aria-live="polite"><strong id="bannerTitle"></strong><small id="bannerSub"></small></div>
 <div id="touchLane" class="touch-lane" role="group" aria-label="손가락을 좌우로 움직여 캐릭터 조종"><span>↔ 이곳을 밀어 좌우 이동</span></div>
 <div class="bottom"><div class="power"><div class="power-title"><span id="heroHud">HERO · 부이</span><b id="weaponLabel">LV.1 / 10</b></div><div class="bars" id="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="power-meta"><span id="weaponName">황금 화살 미사일</span><span id="shieldLabel">◇ 실드 없음</span><span id="powerLabel">성장 준비</span></div></div><button class="bomb" id="bomb" aria-label="필살기 사용"><b id="bombCount">2</b><i>✹</i><span>필살기</span></button></div>
@@ -143,7 +143,24 @@ function finalizeRecord(){if(sessionRecorded)return;sessionRecorded=true;if(scor
 }
 
 function imgReady(i){return heroImgs[i].complete&&heroImgs[i].naturalWidth>0}
-function size(){let r=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.max(1,Math.round(r.height*d))}size();addEventListener('resize',size);
+// Keep the playfield below the HUD and above the actual touch controls.
+const playView={scale:1,x:0,y:0,top:0,bottom:740};
+function size(){
+ const shell=canvas.parentElement,r=shell.getBoundingClientRect(),head=document.querySelector('.hud').getBoundingClientRect();
+ const pad=document.querySelector('.arcade-controls'),footer=document.querySelector('.bottom');
+ const activePad=pad&&!pad.hidden?pad:footer;
+ const foot=activePad&&getComputedStyle(activePad).display!=='none'?activePad.getBoundingClientRect():null;
+ const top=Math.max(0,head.bottom-r.top)+8,bottom=foot?Math.min(r.height,foot.top-r.top-8):r.height-12;
+ const height=Math.max(1,bottom-top);canvas.style.position='absolute';canvas.style.top=top+'px';canvas.style.height=height+'px';
+ const d=Math.min(devicePixelRatio||1,2),width=Math.max(1,Math.round(r.width*d)),pixels=Math.max(1,Math.round(height*d));
+ if(canvas.width!==width)canvas.width=width;if(canvas.height!==pixels)canvas.height=pixels;
+ playView.top=shell.dataset.gameMode==='bubble'?0:shell.dataset.gameMode==='constellation'?120:0;
+ playView.bottom=shell.dataset.gameMode==='galaga'?740:shell.dataset.gameMode==='bubble'?715:700;
+ playView.scale=Math.min(r.width/W,height/(playView.bottom-playView.top));
+ playView.x=(r.width-W*playView.scale)/2;playView.y=(height-(playView.bottom-playView.top)*playView.scale)/2-playView.top*playView.scale;
+}
+function beginPlayfield(){const r=canvas.getBoundingClientRect(),d=canvas.width/r.width;ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#10151f';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.setTransform(playView.scale*d,0,0,playView.scale*d,playView.x*d,playView.y*d)}
+size();addEventListener('resize',size);if(window.visualViewport)visualViewport.addEventListener('resize',size);
 function sound(id){if(!soundOn)return;try{if(!audioCtx){var AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return;audioCtx=new AudioContextClass()}if(audioCtx.state==='suspended')audioCtx.resume();let o=audioCtx.createOscillator(),g=audioCtx.createGain(),now=audioCtx.currentTime,vals=({fire:[840,270,.06,.011],kill:[245,64,.14,.043],damage:[245,65,.36,.07],up:[420,1120,.20,.06],bomb:[100,30,.55,.13],boss:[210,65,.44,.08]})[id]||[560,790,.12,.05];o.type=id==='bomb'?'sawtooth':'triangle';o.frequency.setValueAtTime(vals[0],now);o.frequency.exponentialRampToValueAtTime(vals[1],now+vals[2]);g.gain.setValueAtTime(vals[3],now);g.gain.exponentialRampToValueAtTime(.0001,now+vals[2]);o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+vals[2]+.01)}catch(_){}}
 function vibrate(ms=25){try{navigator.vibrate&&navigator.vibrate(ms)}catch(_){}}
 function initSpace(){stars=Array.from({length:145},()=>({x:rnd(0,W),y:rnd(0,H),v:rnd(10,110),a:rnd(.2,.9),rad:rnd(.4,1.6),tw:rnd(0,TWO)}));clouds=Array.from({length:12},()=>({x:rnd(-80,W+80),y:rnd(0,H),r:rnd(75,190),a:rnd(.015,.065),color:['#1d77e7','#8c33dd','#00b1da'][range(0,3)]}))}initSpace();
@@ -158,8 +175,8 @@ function run(){if(state==='paused'){state='playing';ui.overlay.classList.add('hi
 function levelUp(times=1){if(!player)return;for(let k=0;k<times;k++){if(player.weapon<10){player.weapon++;banner('레벨업!',`${heroes[selected].name2} · LV.${player.weapon}`,1.1)}else{player.mastery++;banner('한계 돌파',`궁극 무기 ★${player.mastery}`,1.1)}}particlesBurst(player.x,player.y,heroes[selected].color,28,150);sound('up');hud()}
 function upgrade(amount){if(!player)return;player.charge+=amount;while(player.charge>=1){player.charge-=1;levelUp()}}
 function spawnWave(){enemies=[];enemyShots=[];boss=null;waveWait=-1;spawnDelay=1.45;diveDelay=2.4;shootDelay=2;const tier=Math.max(1,Math.ceil(wave/5)),waveDifficulty=1+(wave-1)*.145;let isBoss=wave%5===0;
-if(isBoss){let count=Math.min(12,3+tier);for(let j=0;j<count;j++)enemies.push(makeEnemy(j%3,(W/(count+1))*(j+1),250+(j%2)*50,j));boss={x:W/2,y:157,tt:0,hp:405*Math.pow(1+0.73*(tier-1),1.4),max:405*Math.pow(1+0.73*(tier-1),1.4),tier,phase:1,fire:1.2,spin:0,laser:0,style:(tier-1)%4,moveSpeed:.72+tier*.12};banner('보스 등장',`${wave} WAVE · TIER ${tier} · 새로운 공격 패턴`,2.1);sound('boss')}
-else{let rows=Math.min(5,3+Math.floor((wave-1)/4)),cols=6;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)enemies.push(makeEnemy(r===0?2:r===1?1:(c+wave)%3,51+c*63,154+r*48,r*cols+c));banner(`WAVE ${String(wave).padStart(2,'0')}`,`적 공격력 ×${waveDifficulty.toFixed(1)} · 무기 성장 진행`,1.3)}hud()}
+if(isBoss){let count=Math.min(12,3+tier);for(let j=0;j<count;j++)enemies.push(makeEnemy(j%3,(W/(count+1))*(j+1),250+(j%2)*50,j));boss={x:W/2,y:200,tt:0,hp:405*Math.pow(1+0.73*(tier-1),1.4),max:405*Math.pow(1+0.73*(tier-1),1.4),tier,phase:1,fire:1.2,spin:0,laser:0,style:(tier-1)%4,moveSpeed:.72+tier*.12};banner('보스 등장',`${wave} WAVE · TIER ${tier} · 새로운 공격 패턴`,2.1);sound('boss')}
+else{let rows=Math.min(5,3+Math.floor((wave-1)/4)),cols=6;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)enemies.push(makeEnemy(r===0?2:r===1?1:(c+wave)%3,51+c*63,190+r*48,r*cols+c));banner(`WAVE ${String(wave).padStart(2,'0')}`,`적 공격력 ×${waveDifficulty.toFixed(1)} · 무기 성장 진행`,1.3)}hud()}
 function makeEnemy(type,x,y,id){let tougher=1+Math.floor((wave-1)/3),hp=(type===2?2:type===1?1.4:1)*tougher;return{x,y,homeX:x,homeY:y,hp,max:hp,type,id,glow:0,phase:rnd(0,TWO),diving:false,dive:0,fromX:x,fromY:y,targetX:x}}
 function shootEnemy(x,y,vx,vy,r=5,style='normal'){if(enemyShots.length>=170)return;enemyShots.push({x,y,vx,vy,r,style,angle:rnd(0,TWO)})}
 function fire(){const ch=heroes[selected],lv=player.weapon,xx=player.x,yy=player.y-24,pow=(ch.baseDamage+Math.floor((lv-1)/3)*.43+player.mastery*.22),style=ch.type==='fire'?'arrow':ch.type==='rock'?'pebble':'petal';const add=(x,vx,scale=1,pierce=0,target=false)=>shots.push({x,y:yy,vx,vy:-735,damage:pow*scale,pierce,r:ch.type==='rock'?7.8:ch.type==='spirit'?5.6:4.8,color:ch.color,target,style,spin:rnd(0,TWO),aoe:ch.type==='fire'&&lv>=5?9+lv*1.9:0});
@@ -176,9 +193,9 @@ function hit(){if(!player||state!=='playing'||player.inv>0)return;if(player.shie
 function ultimate(){if(!player||state!=='playing'||player.bombs<=0)return;player.bombs--;enemyShots=[];flash=.9;shake=9;bombRing={r:0,tt:0};particlesBurst(player.x,player.y,'#edcfff',56,300);for(const e of enemies){if(e.dead)continue;e.hp-=7+player.weapon;if(e.hp<=0)kill(e)}if(boss)bossDamage(26+player.weapon*8+player.mastery*9,boss.x,boss.y);sound('bomb');vibrate(45);floating(player.x,player.y-70,'필살기!','#ffdcff');hud()}
 function take(d){if(d.type==='weapon')upgrade(.65);if(d.type==='shield'){player.shield=15;banner('쉴드','15초 보호막',.85)}if(d.type==='rapid'){player.rapid=12;banner('연사','연사 속도 강화 · 12초',.85)}if(d.type==='bomb'){player.bombs=Math.min(5,player.bombs+1);banner('필살기 +1','필살기 충전',.85)}if(d.type==='heart'){player.hp=Math.min(3,player.hp+1);banner('HP +1','체력 회복',.85)}particlesBurst(d.x,d.y,'#ccffee',18,120);sound('up');hud()}
 function enemyAi(dt){let difficulty=Math.min(3.65,1+(wave-1)*.105),sway=Math.sin(clock*(.9+difficulty*.08))*Math.min(43,23+wave*.8);
-for(let e of enemies){if(e.dead)continue;if(e.diving){e.dive+=dt*(.53+difficulty*.12);let p=e.dive;e.x=e.fromX+(e.targetX-e.fromX)*Math.sin(Math.min(p,1)*Math.PI*.8)+Math.sin(p*9)*24;e.y=e.fromY+p*(H-e.fromY+50);if(p>=1.1){e.diving=false;e.y=-25;e.x=e.homeX}}else{let k=Math.min(1,dt*(4+difficulty));e.x+=(e.homeX+sway-e.x)*k;e.y+=(e.homeY+Math.sin(clock*2.6+e.phase)*4-e.y)*k}if(Math.abs(e.x-player.x)<15&&Math.abs(e.y-player.y)<17)hit()}
+for(let e of enemies){if(e.dead)continue;if(e.diving){e.dive+=dt*(.53+difficulty*.12);let p=e.dive;e.x=e.fromX+(e.targetX-e.fromX)*Math.sin(Math.min(p,1)*Math.PI*.8)+Math.sin(p*9)*24;e.y=e.fromY+p*(H-e.fromY+50);if(p>=1.1){e.diving=false;e.y=-25;e.x=e.homeX}}else{let k=Math.min(1,dt*(4+difficulty));e.x+=(clamp(e.homeX+sway,24,W-24)-e.x)*k;e.y+=(e.homeY+Math.sin(clock*2.6+e.phase)*4-e.y)*k}if(Math.abs(e.x-player.x)<15&&Math.abs(e.y-player.y)<17)hit()}
 if(spawnDelay<=0){diveDelay-=dt;shootDelay-=dt;if(diveDelay<=0){const avail=enemies.filter(e=>!e.dead&&!e.diving&&e.y>80&&e.y<H-280);let num=wave>=9?2:1;for(let i=0;i<num&&avail.length;i++){let index=range(0,avail.length),e=avail.splice(index,1)[0];e.diving=true;e.dive=0;e.fromX=e.x;e.fromY=e.y;e.targetX=clamp(player.x+rnd(-110,110),25,W-25)}diveDelay=clamp(rnd(1.17,2.22)/difficulty,.33,2.2)}if(shootDelay<=0){const avail=enemies.filter(e=>!e.dead&&e.y>60&&e.y<H-225);if(avail.length){let e=avail[range(0,avail.length)],v=clamp(240+difficulty*41,250,505),vx=clamp((player.x-e.x)*.75,-115,115);shootEnemy(e.x,e.y+15,vx,v,5);if(wave>=7){shootEnemy(e.x,e.y+15,vx-80,v*.95,4);shootEnemy(e.x,e.y+15,vx+80,v*.95,4)}}shootDelay=clamp(rnd(.74,1.35)/difficulty,.28,1.35)}}}
-function bossAi(dt){if(!boss)return;let b=boss;b.tt+=dt;b.spin+=dt*(.6+b.tier*.08);b.x=W/2+Math.sin(b.tt*b.moveSpeed)*Math.min(150,94+b.tier*9);b.y=154+Math.sin(b.tt*1.6)*15;if(spawnDelay>0)return;b.fire-=dt;let phase=b.phase===2?1.35:1,spd=Math.min(475,245+b.tier*23);if(b.fire>0)return;
+function bossAi(dt){if(!boss)return;let b=boss;b.tt+=dt;b.spin+=dt*(.6+b.tier*.08);b.x=W/2+Math.sin(b.tt*b.moveSpeed)*Math.min(W/2-85*(1+Math.min(.38,b.tier*.05))-12,94+b.tier*9);b.y=200+Math.sin(b.tt*1.6)*15;if(spawnDelay>0)return;b.fire-=dt;let phase=b.phase===2?1.35:1,spd=Math.min(475,245+b.tier*23);if(b.fire>0)return;
 // Tier 1: fan, tier 2: aimed volleys, tier 3: spiral; tier 4+: alternating crossfire.
 const pattern=(b.tier-1)%4;if(pattern===0){let n=5+Math.min(4,b.tier-1);for(let i=0;i<n;i++){let angle=(i-(n-1)/2)*.19,aim=(player.x-b.x)*.16;shootEnemy(b.x,b.y+32,Math.sin(angle)*spd+aim,Math.cos(angle)*spd,6,'glow')}}
 else if(pattern===1){let dx=player.x-b.x,dy=player.y-b.y,len=Math.hypot(dx,dy)||1;for(let i=-1;i<=1;i++)shootEnemy(b.x,b.y+44,(dx/len)*spd+i*70,(dy/len)*spd,6,'aim');for(let i=-2;i<=2;i++)shootEnemy(b.x,b.y+42,i*65,spd*.92,4)}
@@ -203,41 +220,61 @@ function circle(x,y,r,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.arc(x,y,r,0,T
 function round(x,y,w,h,r,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
 function background(){ctx.fillStyle='#10151f';ctx.fillRect(0,0,W,H);if(gameMode==='galaga'){ctx.fillStyle='#778599';for(let i=0;i<stars.length;i+=4){const s=stars[i];ctx.globalAlpha=.2+s.a*.3;ctx.fillRect(s.x,s.y,1.3,1.3)}ctx.globalAlpha=1}else{ctx.strokeStyle='#ffffff05';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,138);ctx.lineTo(W,138);ctx.stroke()}}
 function playerDraw(){if(!player)return;ctx.save();ctx.translate(player.x,player.y);if(player.inv>0&&Math.floor(clock*12)%3===0)ctx.globalAlpha=.45;if(imgReady(selected))ctx.drawImage(heroImgs[selected],-33,-45+Math.sin(clock*5)*1.5,66,79);if(player.shield>0){ctx.strokeStyle='#9cbcd8';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-5,36,0,TWO);ctx.stroke()}ctx.restore()}
-function enemyDraw(e){ctx.save();ctx.translate(e.x,e.y);if(e.diving)ctx.rotate(Math.sin(e.dive*5)*.3);let colors=['#72f7e5','#ffce7b','#ff84bb'],cc=colors[e.type];ctx.shadowColor=cc;ctx.shadowBlur=0;path([[-16,-8],[-9,-16],[9,-16],[16,-8],[20,8],[12,14],[-12,14],[-20,8]],['#0c575a','#665036','#632a53'][e.type],cc,2);ctx.shadowBlur=0;round(-9,-4,6,5,2,'#efffff');round(3,-4,6,5,2,'#efffff');round(-22,5,6,7,1,cc);round(16,5,6,7,1,cc);if(e.glow>0){circle(0,0,23,'#ffffff34');e.glow-=.025}if(e.max>4){round(-15,-26,30,3,1,'#203048');round(-15,-26,30*clamp(e.hp/e.max,0,1),3,1,cc)}ctx.restore()}
-function bossDraw(){if(!boss)return;let b=boss;ctx.save();ctx.translate(b.x,b.y);ctx.scale(1+Math.min(.38,b.tier*.05),1+Math.min(.28,b.tier*.04));const colors=['#ff6db7','#78d4ff','#ff9f64','#cb7dff'],cc=colors[b.style];ctx.shadowColor=cc;ctx.shadowBlur=0;path([[0,-43],[20,-32],[35,-27],[62,-20],[85,10],[69,28],[42,20],[18,30],[0,38],[-18,30],[-42,20],[-69,28],[-85,10],[-62,-20],[-35,-27],[-20,-32]],b.phase===2?'#75223a':'#4a2350',cc,3);ctx.shadowBlur=0;path([[0,-38],[0,33],[17,20],[19,-26]],'#733d78');round(-57,8,19,5,2,cc);round(38,8,19,5,2,cc);ctx.shadowColor=cc;ctx.shadowBlur=0;circle(0,-8,20,'#a9f5ff');circle(0,-8,12,b.phase===2?'#ff4d76':'#eefaff');ctx.shadowBlur=0;ctx.restore();round(W/2-88,71,176,9,5,'#14213a');round(W/2-86,73,172*clamp(b.hp/b.max,0,1),5,3,b.phase===2?'#ff5f7e':cc);ctx.fillStyle='#ffe0ed';ctx.textAlign='center';ctx.font='900 10px system-ui';ctx.fillText(`BOSS · TIER ${b.tier} · PHASE ${b.phase}`,W/2,65)}
+function enemyDraw(e){
+ ctx.save();ctx.translate(e.x,e.y);ctx.rotate(clock*.25+e.phase*.35+(e.diving?Math.sin(e.dive*5)*.3:0));
+ const colors=['#72f7e5','#ffce7b','#ff84bb'],cc=colors[e.type];
+ path([[0,-24],[12,-11],[23,0],[12,10],[0,24],[-12,10],[-23,0],[-12,-11]],['#173e49','#51422b','#513049'][e.type],cc,2);
+ path([[0,-15],[8,0],[0,15],[-8,0]],'#c5eef0',cc,1);
+ for(let i=0;i<4;i++){const a=clock*.65+i*Math.PI/2;circle(Math.cos(a)*27,Math.sin(a)*20,2.5,cc)}
+ if(e.glow>0){circle(0,0,25,'#ffffff34');e.glow-=.025}
+ if(e.max>4){round(-15,-30,30,3,1,'#203048');round(-15,-30,30*clamp(e.hp/e.max,0,1),3,1,cc)}
+ ctx.restore();
+}
+function bossDraw(){
+ if(!boss)return;const b=boss;ctx.save();ctx.translate(b.x,b.y);
+ const colors=['#ff8fad','#8bd9e9','#ffd38a','#caafff'],cc=colors[b.style];ctx.rotate(Math.sin(clock*.37)*.07);
+ ctx.strokeStyle=cc;ctx.lineWidth=4;
+ for(let k=0;k<2;k++){ctx.save();ctx.rotate((k?1:-1)*clock*.37);ctx.beginPath();ctx.ellipse(0,0,78+b.tier*2,29+k*17,k?-.64:.64,0,TWO);ctx.stroke();ctx.restore()}
+ for(let i=0;i<8;i++){const a=i*Math.PI/4+clock*.3,r=67;ctx.save();ctx.translate(Math.cos(a)*r,Math.sin(a)*r*.55);ctx.rotate(a);path([[0,-13],[9,0],[0,13],[-9,0]],'#242b4a',cc,2);ctx.restore()}
+ path([[0,-41],[36,-9],[22,30],[-22,30],[-36,-9]],b.phase===2?'#733452':'#293a57',cc,3);
+ circle(0,-4,19,'#d6eefd');circle(0,-4,9,b.phase===2?'#ff658b':'#5e9fff');ctx.restore();
+ round(W/2-88,103,176,9,5,'#14213a');round(W/2-86,105,172*clamp(b.hp/b.max,0,1),5,3,b.phase===2?'#ff5f7e':cc);
+ ctx.fillStyle='#ffe0ed';ctx.textAlign='center';ctx.font='900 10px system-ui';ctx.fillText('성운 코어 · '+b.tier+'단계 · '+b.phase+'형태',W/2,97);
+}
 function dropsDraw(d){let colors={weapon:'#8cffe9',shield:'#92dfff',rapid:'#ffdc78',bomb:'#ff92c7',heart:'#ff8798'},cc=colors[d.type];ctx.save();ctx.translate(d.x,d.y);ctx.rotate(clock*1.2);ctx.shadowColor=cc;ctx.shadowBlur=0;path([[0,-16],[15,0],[0,16],[-15,0]],'#172f45',cc,2);ctx.rotate(-clock*1.2);ctx.shadowBlur=0;ctx.font='950 17px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=cc;ctx.fillText({weapon:'W',shield:'◇',rapid:'⚡',bomb:'✹',heart:'♥'}[d.type],0,1);ctx.restore()}
 function drawPlayerShot(b){ctx.save();ctx.translate(b.x,b.y);if(b.style==='arrow'){ctx.rotate(Math.atan2(b.vy,b.vx)+Math.PI/2);ctx.shadowColor='#ffd36f';ctx.shadowBlur=0;path([[0,-18],[9,6],[3,4],[3,15],[-3,15],[-3,4],[-9,6]],'#f2af24','#fff2b0',2);path([[0,-7],[4,5],[-4,5]],'#fff8d6');round(-5,9,10,4,2,'#cc8422');circle(0,13,2.8,'#fffbe6');ctx.globalAlpha=.45;path([[0,19],[6,31],[0,28],[-6,31]],'#ffb24f');ctx.globalAlpha=1}else if(b.style==='pebble'){ctx.rotate(b.spin||0);ctx.shadowColor='#cbb1ff';ctx.shadowBlur=0;circle(0,0,8,'#3a4154');circle(-6,3,4.2,'#59617b');circle(6,4,3.8,'#68708e');circle(-2,-5,2.2,'#8e97b9');ctx.shadowBlur=0;ctx.globalAlpha=.35;circle(0,0,13,'#cbb1ff');ctx.globalAlpha=1}else{ctx.rotate(b.spin||0);ctx.shadowColor='#98ffe0';ctx.shadowBlur=0;for(let i=0;i<4;i++){ctx.save();ctx.rotate(i*Math.PI/2+.35);ctx.fillStyle=i%2?'#ffd5a1':'#b0ffe1';ctx.beginPath();ctx.ellipse(0,-7,4.8,11.2,0,0,TWO);ctx.fill();ctx.restore()}circle(0,0,4.3,'#fff1dc');ctx.globalAlpha=.42;ctx.strokeStyle='#f9ffbf';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,13.5,0,TWO);ctx.stroke();ctx.globalAlpha=1}ctx.restore()}
-function draw(){ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);ctx.save();if(shake)ctx.translate(rnd(-shake/2,shake/2),rnd(-shake/2,shake/2));background();for(let d of drops)dropsDraw(d);for(let e of enemies)if(!e.dead)enemyDraw(e);bossDraw();for(let b of shots)drawPlayerShot(b);ctx.shadowBlur=0;for(let b of enemyShots){ctx.shadowColor='#ff72a9';ctx.shadowBlur=0;circle(b.x,b.y,b.r*1.85,'#ff7db580');circle(b.x,b.y,b.r*.75,'#fff0ed')}ctx.shadowBlur=0;playerDraw();for(let p of particles){ctx.globalAlpha=clamp(p.ttl/p.life,0,1);circle(p.x,p.y,p.rad,p.color)}ctx.globalAlpha=1;for(let f of floaters){ctx.globalAlpha=clamp(f.ttl,0,1);ctx.font='950 15px system-ui';ctx.fillStyle=f.color;ctx.shadowColor=f.color;ctx.shadowBlur=0;ctx.textAlign='center';ctx.fillText(f.s,f.x,f.y)}ctx.shadowBlur=0;ctx.globalAlpha=1;if(bombRing){ctx.strokeStyle='#c8ffff';ctx.globalAlpha=Math.max(0,1-bombRing.tt);ctx.lineWidth=7*(1-bombRing.tt)+1;ctx.shadowColor='#adffff';ctx.shadowBlur=0;ctx.beginPath();ctx.arc(player.x,player.y,bombRing.r,0,TWO);ctx.stroke();ctx.shadowBlur=0;ctx.globalAlpha=1}if(flash){ctx.globalAlpha=flash*.21;ctx.fillStyle='#e3fff9';ctx.fillRect(0,0,W,H);ctx.globalAlpha=1}ctx.restore()}
+function draw(){beginPlayfield();ctx.save();if(shake)ctx.translate(rnd(-shake/2,shake/2),rnd(-shake/2,shake/2));background();for(let d of drops)dropsDraw(d);for(let e of enemies)if(!e.dead)enemyDraw(e);bossDraw();for(let b of shots)drawPlayerShot(b);ctx.shadowBlur=0;for(let b of enemyShots){ctx.shadowColor='#ff72a9';ctx.shadowBlur=0;circle(b.x,b.y,b.r*1.85,'#ff7db580');circle(b.x,b.y,b.r*.75,'#fff0ed')}ctx.shadowBlur=0;playerDraw();for(let p of particles){ctx.globalAlpha=clamp(p.ttl/p.life,0,1);circle(p.x,p.y,p.rad,p.color)}ctx.globalAlpha=1;for(let f of floaters){ctx.globalAlpha=clamp(f.ttl,0,1);ctx.font='950 15px system-ui';ctx.fillStyle=f.color;ctx.shadowColor=f.color;ctx.shadowBlur=0;ctx.textAlign='center';ctx.fillText(f.s,f.x,f.y)}ctx.shadowBlur=0;ctx.globalAlpha=1;if(bombRing){ctx.strokeStyle='#c8ffff';ctx.globalAlpha=Math.max(0,1-bombRing.tt);ctx.lineWidth=7*(1-bombRing.tt)+1;ctx.shadowColor='#adffff';ctx.shadowBlur=0;ctx.beginPath();ctx.arc(player.x,player.y,bombRing.r,0,TWO);ctx.stroke();ctx.shadowBlur=0;ctx.globalAlpha=1}if(flash){ctx.globalAlpha=flash*.21;ctx.fillStyle='#e3fff9';ctx.fillRect(0,0,W,H);ctx.globalAlpha=1}ctx.restore()}
 // Three-game arcade; keep the original shooter and its online leaderboard.
 let gameMode='galaga',menuStep='hero',extra=null;
-const gameNames={galaga:'갤러그',tetris:'테트리스',bubble:'보글보글'};
+const gameNames={galaga:'우주방어전',constellation:'별자리 잇기',bubble:'별빛대작전'};
 const games=document.createElement('div');games.className='game-options';games.hidden=true;
-games.innerHTML='<button data-game="galaga"><span class="game-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 5 29 26 20 21 11 26Z M20 21V34 M11 31h4 M25 31h4"/></svg></span><span class="game-copy"><b>갤러그</b><small>슈팅</small></span><span class="game-arrow">↗</span></button><button data-game="tetris"><span class="game-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M15 5h10v10H15z M5 15h10v10H5z M15 15h10v10H15z M25 15h10v10H25z"/></svg></span><span class="game-copy"><b>테트리스</b><small>블록 퍼즐</small></span><span class="game-arrow">↗</span></button><button data-game="bubble"><span class="game-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="15" cy="22" r="10"/><circle cx="29" cy="11" r="6"/><path d="m12 8 1-5 M29 26l5 4"/></svg></span><span class="game-copy"><b>보글보글</b><small>점프 액션</small></span><span class="game-arrow">↗</span></button>' ;
+games.innerHTML='<button data-game="galaga"><span class="game-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 5 29 26 20 21 11 26Z M20 21V34 M11 31h4 M25 31h4"/></svg></span><span class="game-copy"><b>우주방어전</b><small>슈팅</small></span><span class="game-arrow">↗</span></button><button data-game="constellation"><span class="game-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4 25 15 37 20 25 25 20 36 15 25 3 20 15 15Z" fill="none"/><circle cx="20" cy="20" r="5"/></svg></span><span class="game-copy"><b>별자리 잇기</b><small>손끝으로 별을 연결</small></span><span class="game-arrow">↗</span></button><button data-game="bubble"><span class="game-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="m20 3 5 12 12 5-12 5-5 12-5-12-12-5 12-5Z" fill="none"/><path d="M5 5l8 7 M35 35l-8-7" stroke-width="2"/></svg></span><span class="game-copy"><b>별빛대작전</b><small>공명 액션</small></span><span class="game-arrow">↗</span></button>' ;
 ui.choices.after(games);
 const controls=document.createElement('div');controls.className='arcade-controls';controls.hidden=true;document.querySelector('.shell').append(controls);
 function modeBest(){return Number(readSafe('galaxy-'+gameMode+'-best','0'))||0}
 function extraRecords(){try{return JSON.parse(readSafe('galaxy-'+gameMode+'-records','[]'))}catch(_){return []}}
 function extraSummary(){ui.rankMyBest.textContent='내 최고 '+scoreText(modeBest())+'점';ui.rankTop3.replaceChildren();extraRecords().slice().sort((a,b)=>b.score-a.score).slice(0,3).forEach((r,i)=>ui.rankTop3.append(makeRankRow((i+1)+'위',r.name,r.hero,r.score,r.wave)));if(!ui.rankTop3.childElementCount)ui.rankTop3.innerHTML='<div class="rank-empty">이 게임의 첫 기록을 만들어 보세요</div>';document.querySelector('.rank-head-title').textContent=gameNames[gameMode]+' · 내 TOP 3';ui.rankTabGlobal.textContent='내 최고 TOP 10'}
-function menuGames(){menuStep='game';games.hidden=false;ui.choices.hidden=true;ui.pick.textContent='02  게임';ui.desc.textContent=heroes[selected].name+'와 함께할 게임을 고르세요.';ui.start.textContent=gameNames[gameMode]+' 플레이';ui.reselect.hidden=false;ui.reselect.textContent='← 캐릭터 변경';ui.resume.style.display='block';ui.resume.style.width='65px';ui.resume.style.height='75px';games.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.game===gameMode));if(gameMode==='galaga'){document.querySelector('.rank-head-title').textContent='랭킹 TOP 3';ui.rankTabGlobal.textContent='전체 TOP 10';showRankSummary()}else extraSummary();ui.selected.innerHTML='<b>'+heroes[selected].name+'</b> · '+['황금화살','몽돌','꽃'][selected]+(gameMode==='tetris'?' 블록':'');document.querySelector('.mini').textContent=gameMode==='galaga'?'좌우 이동 · 자동 발사 · 필살기':gameMode==='tetris'?'길게 눌러 이동 · 회전 · 드롭 | 화면 터치 회전':'이동 + 점프 · 팡! 길게 누르기 · 닿으면 자동 격파'}
+function menuGames(){menuStep='game';games.hidden=false;ui.choices.hidden=true;ui.pick.textContent='02  게임';ui.desc.textContent=heroes[selected].name+'와 함께할 게임을 고르세요.';ui.start.textContent=gameNames[gameMode]+' 플레이';ui.reselect.hidden=false;ui.reselect.textContent='← 캐릭터 변경';ui.resume.style.display='block';ui.resume.style.width='65px';ui.resume.style.height='75px';games.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.game===gameMode));if(gameMode==='galaga'){document.querySelector('.rank-head-title').textContent='랭킹 TOP 3';ui.rankTabGlobal.textContent='전체 TOP 10';showRankSummary()}else extraSummary();ui.selected.innerHTML='<b>'+heroes[selected].name+'</b> · '+(gameMode==='constellation'?['황금 길잡이','시간 지킴이','꽃빛 점수'][selected]:['황금화살','몽돌','꽃잎'][selected]);document.querySelector('.mini').textContent=gameMode==='galaga'?'좌우 이동 · 자동 발사 · 필살기':gameMode==='constellation'?['황금화살: 빛나는 화살부터 이어보세요 · 넓은 터치','몽돌: 빛나는 몽돌부터 이어보세요 · 시간 +5초','꽃잎: 빛나는 꽃잎부터 이어보세요 · 점수 +30%'][selected]:'별빛 표식을 연결해 연쇄 공명 · 점프와 대시'}
 games.querySelectorAll('button').forEach(b=>b.onclick=()=>{gameMode=b.dataset.game;menuGames();sound('up')});
-function menuHero(){menuStep='hero';games.hidden=true;ui.choices.hidden=false;ui.resume.style.display='';ui.pick.textContent='01  캐릭터';ui.start.textContent='게임 고르기 →';ui.reselect.hidden=true;ui.desc.textContent='함께할 친구를 골라주세요.';ui.subtitle.textContent='세 친구의 아케이드';document.querySelector('.mini').textContent='캐릭터를 고른 뒤 게임을 선택하세요.';document.querySelector('.footer-note').textContent='갤러그 · 테트리스 · 보글보글';}
+function menuHero(){menuStep='hero';games.hidden=true;ui.choices.hidden=false;ui.resume.style.display='';ui.pick.textContent='01  캐릭터';ui.start.textContent='게임 고르기 →';ui.reselect.hidden=true;ui.desc.textContent='함께할 친구를 골라주세요.';ui.subtitle.textContent='세 친구의 우주 아케이드';document.querySelector('.mini').textContent='캐릭터를 고른 뒤 게임을 선택하세요.';document.querySelector('.footer-note').textContent='세 가지 독창적인 PYODA 미니게임';}
 const originalRun=run,originalShow=show,originalExit=exitGame,originalStep=step,originalDraw=draw,originalHud=hud,originalFinalize=finalizeRecord,originalSummary=showRankSummary,originalRank=renderRankList;
 showRankSummary=function(){if(gameMode==='galaga'){document.querySelector('.rank-head-title').textContent='랭킹 TOP 3';ui.rankTabGlobal.textContent='전체 TOP 10';originalSummary()}else extraSummary()};
 renderRankList=function(){if(gameMode==='galaga'){originalRank();return}ui.rankList.replaceChildren();const rows=extraRecords();(rankView==='global'?rows.slice().sort((a,b)=>b.score-a.score):rows).forEach((r,i)=>ui.rankList.append(makeRankRow((i+1)+'',r.name,r.hero,r.score,r.wave)));if(!rows.length)ui.rankList.innerHTML='<p class="rank-empty">아직 플레이한 기록이 없어요.</p>';ui.rankFoot.textContent=gameNames[gameMode]+' 기록은 이 기기에 저장됩니다. 게임별 최근 12회 기록입니다.'};
 finalizeRecord=function(){if(gameMode==='galaga'){originalFinalize();return}if(sessionRecorded)return;sessionRecorded=true;if(score<=0)return;let rows=extraRecords();rows.unshift({name:nickname||'별여행자',hero:heroes[selected].name,score,wave,at:new Date().toISOString()});putSafe('galaxy-'+gameMode+'-records',JSON.stringify(rows.slice(0,12)));putSafe('galaxy-'+gameMode+'-best',String(Math.max(score,modeBest())));extraSummary()};
 show=function(mode){if(mode!=='playing')releaseControls();originalShow(mode);games.hidden=true;if(mode==='menu')menuHero();else if(mode==='gameover'){menuStep='game';menuGames();ui.title.textContent='게임 종료';ui.desc.textContent=scoreText(score)+'점 · '+gameNames[gameMode]+' · 단계 '+wave;}else if(mode==='paused'){ui.resume.style.display='block';ui.reselect.hidden=true;ui.desc.textContent=gameNames[gameMode]+' · '+scoreText(score)+'점';}};
 exitGame=function(){releaseControls();originalExit();extra=null;controls.hidden=true;document.querySelector('.bottom').style.display='';ui.touchLane.style.display='';gameMode='galaga';showRankSummary();hud()};
-run=function(){if(state==='menu'&&menuStep==='hero'){menuGames();return}if(gameMode==='galaga'){controls.hidden=true;document.querySelector('.bottom').style.display='';ui.touchLane.style.display='';originalRun();return}if(state==='paused'){state='playing';ui.overlay.classList.add('hidden');hud();return}sessionRecorded=false;score=0;wave=1;combo=0;input.left=input.right=input.touch=false;playerInit();ui.overlay.classList.add('hidden');state='playing';games.hidden=true;document.querySelector('.bottom').style.display='none';ui.touchLane.style.display='none';controls.hidden=false;canvas.setAttribute('aria-label',gameNames[gameMode]+' 게임 화면');if(gameMode==='tetris')initTetris();else initBubble();last=0;hud();draw();sound('up')};
-hud=function(){if(gameMode==='galaga'){document.querySelector('.top-guide span').textContent='↔ 손가락으로 좌우 이동';originalHud();return}ui.score.textContent=scoreText(score);ui.best.textContent=scoreText(Math.max(score,modeBest()));ui.wave.textContent=String(wave).padStart(2,'0');ui.hearts.textContent=gameMode==='tetris'?'▦':'♥ '.repeat(Math.max(0,player.hp));ui.combo.textContent=gameMode==='tetris'?'줄 '+(extra?.lines||0)+' · '+['황금화살','몽돌','꽃'][selected]+' 블록':heroes[selected].name+' · '+['황금화살','몽돌','꽃잎'][selected]+(extra?' · '+Math.ceil(extra.time||0)+'초':'');ui.pause.textContent=state==='paused'?'▶':'Ⅱ';document.querySelector('.top-guide span').textContent=gameMode==='tetris'?'↑ 회전 · ↓ 드롭 · 화면 터치 회전':'↖ ↗ 이동+점프 · 가까운 풍선은 콤보 팡!';ui.progress.style.width='0%'};
-step=function(dt){if(gameMode==='galaga'){originalStep(dt);return}clock+=dt;if(alertRemain>0){alertRemain-=dt;if(alertRemain<=0)ui.banner.classList.remove('show')}if(state!=='playing'||!extra)return;stepControls(dt);if(state==='playing'){if(gameMode==='tetris')stepTetris(dt);else stepBubble(dt)}hud()};
-draw=function(){if(gameMode==='galaga'||!extra){originalDraw();return}ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);background();if(gameMode==='tetris')drawTetris();else drawBubble()};
+run=function(){if(state==='menu'&&menuStep==='hero'){menuGames();return}if(gameMode==='galaga'){controls.hidden=true;document.querySelector('.bottom').style.display='';ui.touchLane.style.display='';originalRun();return}if(state==='paused'){state='playing';ui.overlay.classList.add('hidden');hud();return}sessionRecorded=false;score=0;wave=1;combo=0;input.left=input.right=input.touch=false;playerInit();ui.overlay.classList.add('hidden');state='playing';games.hidden=true;document.querySelector('.bottom').style.display='none';ui.touchLane.style.display='none';controls.hidden=gameMode==='constellation';canvas.setAttribute('aria-label',gameNames[gameMode]+' 게임 화면');if(gameMode==='constellation')initConstellation();else initBubble();last=0;hud();draw();sound('up')};
+hud=function(){canvas.parentElement.dataset.gameMode=gameMode;size();if(gameMode==='galaga'){document.querySelector('.top-guide span').textContent='↔ 손가락으로 좌우 이동';originalHud();return}ui.score.textContent=scoreText(score);ui.best.textContent=scoreText(Math.max(score,modeBest()));ui.wave.textContent=String(wave).padStart(2,'0');ui.hearts.textContent=gameMode==='constellation'?Math.ceil(extra?.time||0)+'초':'♥ '.repeat(Math.max(0,player.hp));ui.combo.textContent=gameMode==='constellation'?'별 '+(extra?.progress||0)+' / '+(extra?.count||0)+' 연결 · '+['황금 길잡이','시간 +5초','꽃빛 추가점수'][selected]:heroes[selected].name+' · '+['황금화살','몽돌','꽃잎'][selected]+(extra?' · '+Math.ceil(extra.time||0)+'초':'');ui.pause.textContent=state==='paused'?'▶':'Ⅱ';document.querySelector('.top-guide span').textContent=gameMode==='constellation'?'빛나는 '+['황금화살','몽돌','꽃잎'][selected]+'부터 차례로 연결':'↖ ↗ 이동+점프 · 가까운 별빛구슬은 콤보 공명!';ui.progress.style.width=gameMode==='constellation'&&extra?Math.round(100*extra.progress/extra.count)+'%':'0%'};
+step=function(dt){if(gameMode==='galaga'){originalStep(dt);return}clock+=dt;if(alertRemain>0){alertRemain-=dt;if(alertRemain<=0)ui.banner.classList.remove('show')}if(state!=='playing'||!extra)return;if(gameMode==='constellation')stepConstellation(dt);else {stepControls(dt);stepBubble(dt)}hud()};
+draw=function(){if(gameMode==='galaga'||!extra){originalDraw();return}beginPlayfield();background();if(gameMode==='constellation')drawConstellation();else drawBubble()};
+const layoutObserver=new ResizeObserver(size);for(const el of [canvas.parentElement,document.querySelector('.hud'),document.querySelector('.bottom'),controls])layoutObserver.observe(el);
 const heldActions=new Map();
 function releaseControls(){heldActions.clear();input.left=input.right=input.touch=false;controls.querySelectorAll('button').forEach(b=>b.classList.remove('pressed'))}
 function bindControls(){
  releaseControls();controls.replaceChildren();controls.dataset.mode=gameMode;
  const pad=document.createElement('div');pad.className='control-pad';const actions=document.createElement('div');actions.className='control-actions';controls.append(pad,actions);
  buildDpad(pad);
- const specs=gameMode==='tetris'?[['⤓','드롭','hard',false,actions]]:[['●','팡!','attack',true,actions]];
+ const specs=[['●','공명!','attack',true,actions]];
  for(const [symbol,label,action,hold,group] of specs){
  const b=document.createElement('button');b.type='button';b.dataset.action=action;b.setAttribute('aria-label',label);b.innerHTML='<span>'+symbol+'</span><small>'+label+'</small>';group.append(b);let pressed=false,suppressUntil=0;
  const start=e=>{if(state!=='playing'||pressed)return;if(e.cancelable)e.preventDefault();pressed=true;suppressUntil=Number.MAX_SAFE_INTEGER;b.classList.add('pressed');if(e.pointerId!==undefined)try{b.setPointerCapture(e.pointerId)}catch(_){}if(gameMode==='bubble'&&(action==='left'||action==='right'))input[action]=true;else act(action);if(hold)heldActions.set(action,{time:0,first:true});};
@@ -248,38 +285,273 @@ function bindControls(){
 }
 function buildDpad(pad){
  pad.classList.add('dpad');pad.setAttribute('role','group');pad.setAttribute('aria-label','방향 패드');
- const dirs=[['up','▲',gameMode==='tetris'?'회전':'점프'],['left','◀','왼쪽'],['right','▶','오른쪽'],['down','▼',gameMode==='tetris'?'드롭':'발판 내려가기']];
- for(const [dir,symbol,label] of dirs){const b=document.createElement('button');b.type='button';b.className='dpad-key '+dir;b.dataset.dir=dir;b.setAttribute('aria-label','방향 '+label);b.innerHTML='<span>'+symbol+'</span>';pad.append(b);b.addEventListener('click',()=>{if(Date.now()>(pad.suppressUntil||0))act(dir==='up'?(gameMode==='tetris'?'rotate':'jump'):dir==='down'&&gameMode==='tetris'?'hard':dir)});}
+ const dirs=[['up','▲','점프'],['left','◀','왼쪽'],['right','▶','오른쪽'],['down','▼','발판 내려가기']];
+ for(const [dir,symbol,label] of dirs){const b=document.createElement('button');b.type='button';b.className='dpad-key '+dir;b.dataset.dir=dir;b.setAttribute('aria-label','방향 '+label);b.innerHTML='<span>'+symbol+'</span>';pad.append(b);b.addEventListener('click',()=>{if(Date.now()>(pad.suppressUntil||0))act(dir==='up'?'jump':dir)});}
  const center=document.createElement('i');center.className='dpad-center';pad.append(center);
  let pointer=null,current=null;
  function choose(x,y){const r=pad.getBoundingClientRect(),dx=x-(r.left+r.width/2),dy=y-(r.top+r.height/2);if(Math.hypot(dx,dy)<r.width*.10)return null;if(gameMode==='bubble'&&dy<-r.width*.14&&Math.abs(dx)>r.width*.14)return dx<0?'up-left':'up-right';if(Math.abs(dx)>Math.abs(dy))return dx<0?'left':'right';return dy<0?'up':'down'}
  function setDirection(dir){if(dir===current)return;input.left=input.right=false;for(const key of ['left','right','down','jump'])heldActions.delete(key);pad.querySelectorAll('button').forEach(b=>b.classList.toggle('pressed',!!dir&&dir.split('-').includes(b.dataset.dir)));const previous=current;current=dir;if(!dir||state!=='playing')return;
  if(gameMode==='bubble'){const parts=dir.split('-'),horizontal=parts.find(d=>d==='left'||d==='right');if(horizontal){input[horizontal]=true;extra.p.face=horizontal==='left'?-1:1;if(!previous||!previous.includes(horizontal))extra.p.x=clamp(extra.p.x+extra.p.face*4,23,397)}if(parts.includes('up')){bubbleJump();heldActions.set('jump',{time:0,first:true})}if(dir==='down')act('down');hud();draw();return}
- const action=dir==='up'?'rotate':dir==='down'?'hard':dir;act(action);if(dir==='left'||dir==='right')heldActions.set(action,{time:0,first:true});}
+ const action=dir==='up'?'jump':dir;act(action);if(dir==='left'||dir==='right')heldActions.set(action,{time:0,first:true});}
  function end(){pointer=null;pad.suppressUntil=Date.now()+700;setDirection(null)}
  if(window.PointerEvent){pad.addEventListener('pointerdown',e=>{if(state!=='playing'||pointer!==null)return;e.preventDefault();pointer=e.pointerId;pad.suppressUntil=Number.MAX_SAFE_INTEGER;pad.setPointerCapture(pointer);setDirection(choose(e.clientX,e.clientY))});pad.addEventListener('pointermove',e=>{if(e.pointerId===pointer){e.preventDefault();setDirection(choose(e.clientX,e.clientY))}});pad.addEventListener('pointerup',end);pad.addEventListener('pointercancel',end);pad.addEventListener('lostpointercapture',end)}else{pad.addEventListener('touchstart',e=>{e.preventDefault();pad.suppressUntil=Date.now()+900;const t=e.changedTouches[0];pointer=t.identifier;setDirection(choose(t.clientX,t.clientY))},{passive:false});pad.addEventListener('touchmove',e=>{e.preventDefault();const t=[...e.changedTouches].find(t=>t.identifier===pointer);if(t)setDirection(choose(t.clientX,t.clientY))},{passive:false});pad.addEventListener('touchend',end);pad.addEventListener('touchcancel',end)}
 }
-function stepControls(dt){for(const [action,h] of heldActions){h.time+=dt;const wait=h.first?.22:(action==='attack'?.24:action==='down'?.045:.085);if(h.time>=wait){h.time=0;h.first=false;if(gameMode==='tetris'||action==='attack'||action==='jump')act(action)}}}
-function act(action){if(state!=='playing'||gameMode==='galaga'||!extra)return;if(gameMode==='tetris'){if(action==='left')moveT(-1);if(action==='right')moveT(1);if(action==='rotate')rotateT();if(action==='down'){if(!collideT(extra.p,extra.x,extra.y+1))score++;dropT()}if(action==='hard'){while(!collideT(extra.p,extra.x,extra.y+1)){extra.y++;score+=2}lockT()}}else{if(action==='jump')bubbleJump();if(action==='down'&&extra.p.ground&&extra.p.y+24<extra.platforms[0].y-2){extra.p.y+=5;extra.p.vy=70;extra.p.ground=false}if(action==='fire')fireBubble();if(action==='pop')popBubble();if(action==='attack'){if(!popBubble(true))fireBubble()}}hud();draw()}
-const SHAPES=[[[1,1,1,1]],[[1,1],[1,1]],[[0,1,0],[1,1,1]],[[0,1,1],[1,1,0]],[[1,1,0],[0,1,1]],[[1,0,0],[1,1,1]],[[0,0,1],[1,1,1]]];
-function nextShape(){if(!extra.bag.length){extra.bag=[0,1,2,3,4,5,6];for(let i=6;i>0;i--){const j=Math.floor(Math.random()*(i+1));[extra.bag[i],extra.bag[j]]=[extra.bag[j],extra.bag[i]]}}return SHAPES[extra.bag.pop()].map(r=>r.slice())}
-function initTetris(){extra={board:Array.from({length:20},()=>Array(10).fill(0)),bag:[],lines:0,timer:0,repeat:0,x:3,y:0};extra.next=nextShape();spawnT();bindControls()}
-function collideT(p,x,y){return p.some((r,j)=>r.some((v,i)=>v&&(x+i<0||x+i>=10||y+j>=20||(y+j>=0&&extra.board[y+j][x+i]))))}
-function spawnT(){extra.p=extra.next;extra.next=nextShape();extra.x=Math.floor((10-extra.p[0].length)/2);extra.y=0;extra.timer=0;if(collideT(extra.p,extra.x,extra.y))show('gameover')}
-function moveT(dx){if(!collideT(extra.p,extra.x+dx,extra.y))extra.x+=dx}
-function rotateT(){let p=extra.p[0].map((_,i)=>extra.p.map(r=>r[i]).reverse());for(const dx of [0,-1,1,-2,2])if(!collideT(p,extra.x+dx,extra.y)){extra.p=p;extra.x+=dx;sound('fire');return}}
-function dropT(){if(!collideT(extra.p,extra.x,extra.y+1)){extra.y++;return}lockT()}
-function lockT(){extra.p.forEach((r,j)=>r.forEach((v,i)=>{if(v&&extra.y+j>=0)extra.board[extra.y+j][extra.x+i]=1}));let n=0;for(let j=19;j>=0;j--)if(extra.board[j].every(Boolean)){extra.board.splice(j,1);extra.board.unshift(Array(10).fill(0));n++;j++}if(n){score+=[0,100,300,500,800][n]*wave;extra.lines+=n;wave=1+Math.floor(extra.lines/10);sound('kill');banner(n+'줄 완성','+'+[0,100,300,500,800][n]*wave+'점',.6)}spawnT()}
-function stepTetris(dt){extra.timer+=dt;extra.repeat-=dt;if(extra.repeat<=0&&(input.left||input.right)){moveT(Number(input.right)-Number(input.left));extra.repeat=.12}if(extra.timer>=Math.max(.1,.75-(wave-1)*.065)){extra.timer=0;dropT()}}
-function token(x,y,s,ghost=false){ctx.save();ctx.translate(x,y);ctx.globalAlpha=ghost ? .19 : 1;ctx.fillStyle=ghost?heroes[selected].color+'22':['#986820','#555c76','#287655'][selected];ctx.strokeStyle=ghost?heroes[selected].color+'77':'#ffffffb0';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-s/2+1,-s/2+1,s-2,s-2,4);ctx.fill();ctx.stroke();ctx.scale(s/38,s/38);drawPlayerShot({x:0,y:0,style:['arrow','pebble','petal'][selected],vy:-1,vx:0,spin:0});ctx.restore()}
-function drawTetris(){const s=23,x=35,y=153;round(x-3,y-3,236,466,8,'#0b1018');ctx.strokeStyle='#ffffff0c';for(let j=0;j<=20;j++){ctx.beginPath();ctx.moveTo(x,y+j*s);ctx.lineTo(x+230,y+j*s);ctx.stroke()}for(let i=0;i<=10;i++){ctx.beginPath();ctx.moveTo(x+i*s,y);ctx.lineTo(x+i*s,y+460);ctx.stroke()}extra.board.forEach((r,j)=>r.forEach((v,i)=>{if(v)token(x+i*s+s/2,y+j*s+s/2,s)}));let gy=extra.y;while(!collideT(extra.p,extra.x,gy+1))gy++;extra.p.forEach((r,j)=>r.forEach((v,i)=>{if(v){token(x+(extra.x+i)*s+s/2,y+(gy+j)*s+s/2,s,true);token(x+(extra.x+i)*s+s/2,y+(extra.y+j)*s+s/2,s)}}));ctx.font='bold 12px system-ui';ctx.fillStyle='#c8ddfa';ctx.textAlign='center';ctx.fillText('NEXT',345,179);extra.next.forEach((r,j)=>r.forEach((v,i)=>{if(v)token(310+i*23,207+j*23,22)}));if(imgReady(selected))ctx.drawImage(heroImgs[selected],298,300,100,135);ctx.fillStyle=heroes[selected].color;ctx.fillText(heroes[selected].name,345,452);ctx.fillText(extra.lines+'줄',345,480)}
+
+function stepControls(dt){
+ for(const [action,h] of heldActions){
+  h.time+=dt;
+  const wait=h.first?.22:(action==='attack'?.24:action==='down'?.045:.085);
+  if(h.time>=wait){h.time=0;h.first=false;if(action==='attack'||action==='jump')act(action)}
+ }
+}
+function act(action){
+ if(state!=='playing'||gameMode!=='bubble'||!extra)return;
+ if(action==='jump')bubbleJump();
+ if(action==='down'&&extra.p.ground&&extra.p.y+24<extra.platforms[0].y-2){extra.p.y+=5;extra.p.vy=70;extra.p.ground=false}
+ if(action==='fire')fireBubble();
+ if(action==='pop')popBubble();
+ if(action==='attack'){if(!popBubble(true))fireBubble()}
+ hud();draw();
+}
+
+
+// 《별자리 잇기》: original one-touch constellation game, independent of block puzzles.
+// World coordinates match the existing 420-unit PYODA mobile canvas.
+const CONSTELLATION_PATHS=[
+ [[.09,.24],[.30,.10],[.46,.37],[.76,.13],[.91,.40],[.65,.58],[.85,.81],[.40,.87],[.15,.66]],
+ [[.12,.67],[.24,.27],[.51,.13],[.79,.32],[.91,.71],[.59,.87],[.32,.71],[.10,.90],[.55,.46]],
+ [[.16,.16],[.46,.11],[.80,.23],[.67,.50],[.91,.83],[.54,.89],[.29,.59],[.08,.79],[.43,.35]],
+ [[.11,.42],[.27,.13],[.57,.23],[.85,.11],[.74,.48],[.92,.75],[.58,.86],[.23,.79],[.39,.48]]
+];
+function constellationPosition(star){
+ const drifting=wave>=4?(4+Math.min(8,(wave-4)*.7)):0;
+ return {x:star.x+Math.sin(clock*(.65+wave*.025)+star.seed)*drifting,
+         y:star.y+Math.cos(clock*(.52+wave*.02)+star.seed*1.5)*drifting*.65};
+}
+function constellationStage(){
+ if(!extra)return;
+ extra.count=Math.min(9,4+Math.floor((wave-1)/2));
+ const pattern=CONSTELLATION_PATHS[(wave-1)%CONSTELLATION_PATHS.length];
+ extra.nodes=pattern.slice(0,extra.count).map((p,i)=>({
+  x:57+p[0]*306,y:170+p[1]*430,
+  seed:i*1.93+wave*.47,index:i,target:true
+ }));
+ // Non-interactive guide stars are decor and can never block the correct one.
+ extra.decor=[];
+ for(let k=0;k<24;k++){
+  const x=35+rnd(0,350),y=166+rnd(0,455);
+  if(extra.nodes.every(p=>Math.hypot(x-p.x,y-p.y)>40))extra.decor.push({x,y,a:rnd(.19,.5),r:rnd(.6,2.2)});
+ }
+ extra.progress=0;extra.pointer=null;extra.drag=false;extra.hover=null;
+ extra.wait=0;extra.lastMiss=-10;
+ extra.timeMax=Math.max(18,34-wave*1.2)+(selected===1?5:0);
+ extra.time=extra.timeMax;
+ banner('별자리 '+wave+'단계','빛나는 '+['황금화살','몽돌','꽃잎'][selected]+'부터 차례로 이어주세요',1.3);
+ hud();
+}
+function initConstellation(){
+ extra={nodes:[],decor:[],count:0,progress:0,time:0,timeMax:0,pointer:null,drag:false,wait:0,lastMiss:-10,hover:null,finished:0};
+ constellationStage();
+ // No D-pad: directly draw lines between stars using a finger, stylus or mouse.
+ controls.hidden=true;
+}
+function constellationComplete(){
+ if(!extra||extra.wait>0||state!=='playing')return;
+ const bonus=selected===2?1.3:1;
+ const points=Math.round((350+wave*90+extra.time*19)*bonus);
+ score+=points;
+ extra.finished++;
+ extra.wait=1.65;
+ extra.lastCompletePoints=points;
+ // Display the success message in a centered game card; never in the top banner.
+ ui.banner.classList.remove('show');alertRemain=0;
+ sound('up');vibrate(30);
+}
+function constellationHitAt(x,y,fromPointer=false){
+ if(state!=='playing'||gameMode!=='constellation'||!extra||extra.wait>0)return false;
+ const e=extra;
+ if(e.progress>=e.count)return false;
+ const target=e.nodes[e.progress],p=constellationPosition(target);
+ const radius=selected===0?40:33;
+ if(Math.hypot(x-p.x,y-p.y)<=radius){
+  e.progress++;
+  sound('fire');
+  if(e.progress===e.count)constellationComplete();
+  return true;
+ }
+ // Penalize only an intentional incorrect tap, not an accidental pass during dragging.
+ if(fromPointer&&clock-e.lastMiss>.46&&e.nodes.some((n,i)=>i>e.progress&&Math.hypot(x-constellationPosition(n).x,y-constellationPosition(n).y)<25)){
+  e.lastMiss=clock;e.time=Math.max(0,e.time-1.4);sound('damage');
+ }
+ return false;
+}
+function constellationSegment(ax,ay,bx,by){
+ if(!extra||extra.progress===0||extra.wait>0)return;
+ // A fast swipe may jump over a point between two pointer events.
+ for(let attempt=0;attempt<4&&extra.progress<extra.count;attempt++){
+  const p=constellationPosition(extra.nodes[extra.progress]);
+  const dx=bx-ax,dy=by-ay,len2=dx*dx+dy*dy;
+  const t=len2?clamp(((p.x-ax)*dx+(p.y-ay)*dy)/len2,0,1):0;
+  const nearX=ax+dx*t,nearY=ay+dy*t;
+  if(Math.hypot(p.x-nearX,p.y-nearY)>(selected===0?40:33))break;
+  if(!constellationHitAt(p.x,p.y))break;
+ }
+}
+function stepConstellation(dt){
+ if(!extra)return;
+ if(extra.wait>0){
+  extra.wait-=dt;
+  if(extra.wait<=0){wave++;constellationStage()}
+  return;
+ }
+ extra.time=Math.max(0,extra.time-dt);
+ if(extra.time<=0){show('gameover');return}
+}
+
+// Character-exclusive artwork: every constellation node uses a gold arrow,
+// volcanic pebble, or flower-petal emblem. No numbered nodes are drawn.
+function constellationGlyph(x,y,scale=1){
+ ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
+ const style=['arrow','pebble','petal'][selected];
+ // Existing character-specific projectile illustrations are original vector paths.
+ drawPlayerShot({x:0,y:0,style,vx:0,vy:-1,spin:clock*.14});
+ ctx.restore();
+}
+function constellationTrail(a,b,opacity=1){
+ const hue=['#f5ba58','#b1a3dc','#8dedbc'][selected];
+ ctx.save();ctx.globalAlpha=opacity;ctx.strokeStyle=hue;
+ ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=selected===1?5:selected===0?4:3.2;
+ if(selected===1)ctx.setLineDash([3,10]);
+ ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+ ctx.setLineDash([]);
+ const dx=b.x-a.x,dy=b.y-a.y,ang=Math.atan2(dy,dx),distance=Math.hypot(dx,dy);
+ if(selected===0){
+  // Golden arrows fly in the completed direction.
+  for(let t=.3;t<.9;t+=.35){
+   ctx.save();ctx.translate(a.x+dx*t,a.y+dy*t);ctx.rotate(ang);
+   ctx.fillStyle='#fff0a4';ctx.beginPath();
+   ctx.moveTo(7,0);ctx.lineTo(-5,-5);ctx.lineTo(-2,0);ctx.lineTo(-5,5);ctx.closePath();ctx.fill();ctx.restore();
+  }
+ }else if(selected===1){
+  // Individual mineral fragments distinguish Mongdoli's trail.
+  for(let t=.25;t<.95;t+=.25){
+   ctx.save();ctx.translate(a.x+dx*t,a.y+dy*t);ctx.rotate(ang+t);
+   ctx.fillStyle='#dad4f3';ctx.beginPath();ctx.ellipse(0,0,4,3,0,0,TWO);ctx.fill();ctx.restore();
+  }
+ }else{
+  // Sorang-i leaves a sequence of small flower petals.
+  const count=Math.min(7,Math.max(3,Math.round(distance/26)));
+  for(let k=0;k<count;k++){
+   const t=(k+.6)/(count+.5);
+   ctx.save();ctx.translate(a.x+dx*t,a.y+dy*t);
+   ctx.rotate(ang+.4*Math.sin(clock*2+k));ctx.fillStyle=k%2?'#f9d1e3':'#bdfbe0';
+   ctx.beginPath();ctx.ellipse(0,0,4.5,2.9,Math.PI/4,0,TWO);ctx.fill();ctx.restore();
+  }
+ }
+ ctx.restore();
+}
+function drawConstellation(){
+ if(!extra)return;
+ const e=extra,hero=heroes[selected],cc=hero.color;
+ ctx.save();
+ const gradient=ctx.createRadialGradient(210,385,20,210,385,340);
+ gradient.addColorStop(0,['#42321e','#242d4b','#18382f'][selected]);
+ gradient.addColorStop(.54,['#24271f','#1b2333','#152932'][selected]);
+ gradient.addColorStop(1,'#10151f');
+ ctx.fillStyle=gradient;ctx.fillRect(0,125,W,575);
+ for(const d of e.decor){
+  ctx.globalAlpha=d.a*(.8+.2*Math.sin(clock*2+d.x));
+  circle(d.x,d.y,d.r,'#d0e5e8');
+ }
+ ctx.globalAlpha=1;
+ ctx.textAlign='center';ctx.fillStyle='#e5e8df';ctx.font='750 19px system-ui';
+ ctx.fillText('별자리 '+String(wave).padStart(2,'0')+' · '+['황금화살','몽돌','꽃잎'][selected],210,155);
+ ctx.fillStyle='#a9b8bc';ctx.font='12px system-ui';
+ ctx.fillText(e.wait>0?'잠시 후 다음 별자리':'빛나는 문양부터 차례로 연결하세요',210,181);
+
+ // Gentle beginner guide, no sequential numbers.
+ if(wave<=3||e.progress>0){
+  ctx.save();ctx.strokeStyle=cc;ctx.globalAlpha=wave<=3?.17:.065;ctx.lineWidth=1.5;
+  ctx.setLineDash([3,7]);ctx.beginPath();
+  e.nodes.forEach((n,i)=>{const p=constellationPosition(n);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y)});
+  ctx.stroke();ctx.setLineDash([]);ctx.restore();
+ }
+
+ // Character-specific connecting lines.
+ if(e.progress>1){
+  for(let i=1;i<e.progress;i++){
+   constellationTrail(constellationPosition(e.nodes[i-1]),constellationPosition(e.nodes[i]));
+  }
+ }
+ if(e.drag&&e.progress>0&&e.progress<e.count&&e.hover){
+  ctx.save();ctx.globalAlpha=.33;ctx.strokeStyle=cc;ctx.lineWidth=2;
+  const p=constellationPosition(e.nodes[e.progress-1]);
+  ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(e.hover.x,e.hover.y);ctx.stroke();ctx.restore();
+ }
+
+ for(let i=0;i<e.nodes.length;i++){
+  const p=constellationPosition(e.nodes[i]),done=i<e.progress,next=i===e.progress;
+  const pulse=1+.11*Math.sin(clock*4.7+i);
+  ctx.save();ctx.translate(p.x,p.y);
+
+  // Active target is visible without numbering. Other targets keep hero artwork.
+  if(next&&e.wait<=0){
+   const radius=selected===0?32:29;
+   ctx.save();ctx.globalAlpha=.38+.17*Math.sin(clock*4.7+i);
+   ctx.strokeStyle=cc;ctx.lineWidth=2.5;
+   ctx.beginPath();ctx.arc(0,0,radius*pulse,0,TWO);ctx.stroke();
+   ctx.globalAlpha=.16;circle(0,0,radius-1,cc);ctx.restore();
+   ctx.fillStyle='#f6f8ec';ctx.textAlign='center';ctx.textBaseline='middle';
+   ctx.font='800 11px system-ui';ctx.fillText(i===0?'시작':'다음',0,-39);
+  }
+
+  ctx.globalAlpha=done?1:next?1:.77;
+  circle(0,0,done?22:21,done?['#3e321e','#343247','#1c4538'][selected]:'#1c2836');
+  ctx.strokeStyle=done?cc:next?'#eaffed':'#677d8a';
+  ctx.lineWidth=done?2.2:1.4;ctx.beginPath();ctx.arc(0,0,done?22:21,0,TWO);ctx.stroke();
+
+  // Precisely replace the former number / checkmark with the character motif.
+  constellationGlyph(0,0,selected===0?.7:selected===1?1.65:1.05);
+  if(done){
+   ctx.globalAlpha=1;
+   circle(17,17,5.5,cc);
+   circle(17,17,2.4,'#f5f8f3');
+  }
+  ctx.restore();
+ }
+
+ if(imgReady(selected)){ctx.save();ctx.globalAlpha=.82;ctx.drawImage(heroImgs[selected],10,609,56,73);ctx.restore()}
+ ctx.textAlign='left';ctx.fillStyle='#d8e6d7';ctx.font='bold 11px system-ui';
+ ctx.fillText(['부이 · 황금화살 / 연결 범위 확대','몽돌이 · 몽돌 / 시간 +5초','소랑이 · 꽃잎 / 점수 +30%'][selected],75,651);
+ ctx.fillStyle='#91a1ac';ctx.font='11px system-ui';
+ ctx.fillText(e.progress+' / '+e.count+'개 연결',75,672);
+ // Draw the stage-complete card LAST, centered below the top instructions.
+ if(e.wait>0){
+  ctx.save();
+  ctx.globalAlpha=.56;ctx.fillStyle='#08111d';ctx.fillRect(0,195,W,440);
+  ctx.globalAlpha=1;
+  round(60,300,300,150,18,'#182638');
+  ctx.strokeStyle=cc;ctx.lineWidth=2;ctx.beginPath();
+  ctx.roundRect(60,300,300,150,18);ctx.stroke();
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle='#f4f8f0';ctx.font='800 24px system-ui';
+  ctx.fillText('별자리 완성!',210,337);
+  ctx.fillStyle=cc;ctx.font='750 19px system-ui';
+  ctx.fillText('+'+(e.lastCompletePoints||0).toLocaleString()+'점',210,380);
+  ctx.fillStyle='#cad9dc';ctx.font='700 15px system-ui';
+  ctx.fillText('다음 단계 · STAGE '+String(wave+1).padStart(2,'0'),210,416);
+  ctx.restore();
+ }
+ ctx.restore();
+}
+
 function initBubble(){extra={p:{x:55,y:640,vy:0,ground:false,face:1},platforms:[],foes:[],bubbles:[],inv:2,cool:0,wait:0,effects:[]};bubbleStage();bindControls()}
 function bubbleStage(){
  const layouts=[[[20,145],[255,145],[100,220],[20,120],[280,120]],[[35,130],[255,130],[115,190],[35,110],[275,110]],[[10,165],[245,165],[75,270],[40,120],[260,120]]];
  const layout=layouts[(wave-1)%3];extra.platforms=[{x:12,y:635,w:396},...layout.map(([x,w],i)=>({x,y:i<2?505:i===2?375:250,w}))];
  extra.p={x:55,y:611,vy:0,ground:true,face:1,coyote:.11,jumpBuffer:0};
  extra.foes=Array.from({length:Math.min(14,5+wave)},(_,i)=>{const pl=extra.platforms[(i%5)+1];return {platform:(i%5)+1,x:pl.x+25+(i*29)%(pl.w-45),y:pl.y-17,vy:0,vx:(i%2?1:-1)*(82+Math.min(115,wave*9)),alive:true,trapped:false,hop:rnd(.8,2),fire:rnd(2,5),shooter:wave>=3&&i%3===0}});
- extra.bubbles=[];extra.hazards=[];extra.chain=null;extra.chainBadge=null;extra.effects=[];extra.inv=2;extra.wait=0;extra.time=Math.max(45,95-wave*4);extra.hurry=false;releaseControls();banner('STAGE '+wave,wave>=3?'적의 공격에 주의 · 발판을 이동하세요':'가까운 풍선을 연결해 콤보 팡!!',1.4)
+ extra.bubbles=[];extra.hazards=[];extra.chain=null;extra.chainBadge=null;extra.effects=[];extra.inv=2;extra.wait=0;extra.time=Math.max(45,95-wave*4);extra.hurry=false;releaseControls();banner('STAGE '+wave,wave>=3?'적의 공격에 주의 · 발판을 이동하세요':'가까운 별빛구슬을 연결해 콤보 공명!!',1.4)
 }
 function bubbleJump(){const p=extra.p;p.jumpBuffer=.15;if(p.ground||p.coyote>0){p.vy=-555;p.ground=false;p.coyote=0;p.jumpBuffer=0;sound('up')}}
 function fireBubble(){if(extra.cool>0)return;extra.cool=.25;const p=extra.p;if(input.left!==input.right)p.face=input.left?-1:1;extra.bubbles.push({x:p.x+p.face*25,y:p.y-3,vx:p.face*310,face:p.face,life:1.15,enemy:null});sound('fire')}
@@ -295,9 +567,9 @@ function processBubbleChain(dt){const chain=extra.chain;if(!chain)return;chain.t
  for(let i=chain.pending.length-1;i>=0;i--){const item=chain.pending[i];if(item.at>chain.time)continue;const b=item.b;chain.pending.splice(i,1);if(b.life<=0)continue;b.life=0;chain.popped++;if(b.enemy&&b.enemy.alive){b.enemy.alive=false;chain.kills++;const points=100*wave*chain.kills;score+=points;chain.points+=points}
  extra.effects.push({x:b.x,y:b.y,t:.65,life:.65,c:heroes[selected].color,combo:chain.kills,style:['arrow','pebble','petal'][selected],face:b.face||1});
  if(chain.kills>1)extra.chainBadge={n:chain.kills,points:chain.points,t:1.3};}
- if(!chain.pending.length){sound(chain.kills>1?'bomb':'kill');if(chain.kills>1){banner('콤보 팡! ×'+chain.kills,'콤보 팡! · +'+scoreText(chain.points)+'점',.9);vibrate(25)}else if(chain.kills)banner('격파!','+'+scoreText(chain.points)+'점',.45);extra.chain=null}
+ if(!chain.pending.length){sound(chain.kills>1?'bomb':'kill');if(chain.kills>1){banner('콤보 공명! ×'+chain.kills,'콤보 공명! · +'+scoreText(chain.points)+'점',.9);vibrate(25)}else if(chain.kills)banner('격파!','+'+scoreText(chain.points)+'점',.45);extra.chain=null}
 }
-function popBubble(capturedOnly=false){const roots=extra.bubbles.filter(b=>b.life>0&&!b.queued&&(!capturedOnly||b.enemy)&&Math.hypot(b.x-extra.p.x,b.y-extra.p.y)<105);if(!roots.length){if(!capturedOnly)banner('공격에 가까이!','닿거나 팡! 버튼으로 콤보 팡!',.6);return false}return startBubbleChain(roots)}
+function popBubble(capturedOnly=false){const roots=extra.bubbles.filter(b=>b.life>0&&!b.queued&&(!capturedOnly||b.enemy)&&Math.hypot(b.x-extra.p.x,b.y-extra.p.y)<105);if(!roots.length){if(!capturedOnly)banner('공격에 가까이!','닿거나 공명! 버튼으로 콤보 공명!',.6);return false}return startBubbleChain(roots)}
 function bubbleDamage(){if(extra.inv>0||state!=='playing')return;player.hp--;extra.inv=1.6;sound('damage');vibrate(30);if(player.hp<=0)show('gameover')}
 function fallBody(p,dt,half){const old=p.y+half;p.vy+=850*dt;p.y+=p.vy*dt;p.ground=false;for(const pl of extra.platforms)if(p.vy>=0&&old<=pl.y+1&&p.y+half>=pl.y&&p.x+half>pl.x&&p.x-half<pl.x+pl.w){p.y=pl.y-half;p.vy=0;p.ground=true;break}if(p.y>735){p.y=160;p.vy=0}}
 function stepBubble(dt){
@@ -310,25 +582,80 @@ function stepBubble(dt){
  for(const b of extra.bubbles){if(b.queued)continue;b.life-=dt;if(b.life<=0){if(b.enemy&&b.enemy.alive){b.enemy.trapped=false;b.enemy.x=b.x;b.enemy.y=b.y;b.enemy.vy=0;b.enemy.vx=Math.sign(b.enemy.vx)*Math.min(235,Math.abs(b.enemy.vx)*1.12)}continue}b.x=clamp(b.x+b.vx*dt,18,402);b.vx*=Math.pow(.12,dt);b.y=Math.max(170,b.y-dt*12);if(!b.enemy)for(const e of extra.foes)if(e.alive&&!e.trapped&&Math.hypot(b.x-e.x,b.y-e.y)<30){e.trapped=true;b.enemy=e;b.life=Math.max(6,10-wave*.25);b.vx=0;break}}
  const contacts=extra.bubbles.filter(b=>b.enemy&&!b.queued&&b.life>0&&Math.hypot(b.x-p.x,b.y-p.y)<43);if(contacts.length)startBubbleChain(contacts);
  extra.bubbles=extra.bubbles.filter(b=>b.life>0);extra.effects.forEach(e=>e.t-=dt);extra.effects=extra.effects.filter(e=>e.t>0);if(extra.chainBadge)extra.chainBadge.t-=dt;
- const near=extra.bubbles.some(b=>b.enemy&&!b.queued&&Math.hypot(b.x-p.x,b.y-p.y)<105);const attack=controls.querySelector('[data-action=attack]');if(attack){attack.classList.toggle('ready',near);attack.querySelector('small').textContent=near?'콤보 팡!':'팡!'}
+ const near=extra.bubbles.some(b=>b.enemy&&!b.queued&&Math.hypot(b.x-p.x,b.y-p.y)<105);const attack=controls.querySelector('[data-action=attack]');if(attack){attack.classList.toggle('ready',near);attack.querySelector('small').textContent=near?'콤보 공명!':'공명!'}
  if(extra.foes.every(e=>!e.alive)&&!extra.chain){extra.wait+=dt;if(extra.wait>1){wave++;score+=500;if(wave%3===1)player.hp=Math.min(3,player.hp+1);bubbleStage()}}
 }
-function drawBubble(){for(const pl of extra.platforms){round(pl.x,pl.y,pl.w,13,5,'#364350');round(pl.x,pl.y,pl.w,3,2,'#91b6a5')}for(const e of extra.foes)if(e.alive&&!e.trapped){circle(e.x,e.y,17,e.shooter?'#e99b50':'#d57b91');if(e.shooter&&e.fire<.7){ctx.strokeStyle='#ffc77d';ctx.lineWidth=2;ctx.beginPath();ctx.arc(e.x,e.y,23,0,TWO);ctx.stroke()}circle(e.x-6,e.y-4,4,'#fff');circle(e.x+6,e.y-4,4,'#fff');circle(e.x-6,e.y-4,2,'#251943');circle(e.x+6,e.y-4,2,'#251943')}for(const b of extra.bubbles){ctx.save();ctx.translate(b.x,b.y);const scale=b.enemy?1.9:1.25;ctx.scale(scale,scale);drawPlayerShot({x:0,y:0,style:['arrow','pebble','petal'][selected],vx:b.face||1,vy:0,spin:selected===0?0:clock*2});ctx.restore();if(b.enemy){ctx.save();ctx.translate(b.x,b.y);ctx.fillStyle='#fff';ctx.strokeStyle='#251943';ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(-5,-1,4,5,0,0,TWO);ctx.ellipse(5,-1,4,5,0,0,TWO);ctx.fill();ctx.stroke();circle(-4,-1,2,'#251943');circle(6,-1,2,'#251943');ctx.restore()}}for(const h of extra.hazards){circle(h.x,h.y,7,'#ff9765');circle(h.x,h.y,3,'#fff3bc')}
+function drawBubble(){
+ for(const pl of extra.platforms){round(pl.x,pl.y,pl.w,13,5,'#364350');round(pl.x,pl.y,pl.w,3,2,'#91b6a5')}
+ // Abstract hostile crystals: never reproduce the original bubble-game enemies.
+ for(const e of extra.foes)if(e.alive&&!e.trapped){
+  const cc=e.shooter?'#e9b866':'#a5bbdd';ctx.save();ctx.translate(e.x,e.y);ctx.rotate(clock*.35);
+  path([[0,-19],[16,-9],[16,9],[0,19],[-16,9],[-16,-9]],'#26334b',cc,2);
+  path([[0,-10],[9,0],[0,10],[-9,0]],cc);ctx.restore();
+  if(e.shooter&&e.fire<.7){ctx.strokeStyle=cc;ctx.lineWidth=2;ctx.beginPath();ctx.arc(e.x,e.y,23,0,TWO);ctx.stroke()}
+ }
+ // Collected light is shown as a hero-shaped energy sigil rather than a bubble.
+ for(const b of extra.bubbles){
+  ctx.save();ctx.translate(b.x,b.y);const scale=b.enemy?1.9:1.25;ctx.scale(scale,scale);
+  ctx.rotate(b.enemy?clock*.7:0);
+  drawPlayerShot({x:0,y:0,style:['arrow','pebble','petal'][selected],vx:b.face||1,vy:0,spin:selected===0?0:clock*2});
+  if(b.enemy){ctx.strokeStyle=heroes[selected].color;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-13,-13);ctx.lineTo(13,13);ctx.moveTo(13,-13);ctx.lineTo(-13,13);ctx.stroke()}
+  ctx.restore();
+ }
+
+for(const h of extra.hazards){circle(h.x,h.y,7,'#ff9765');circle(h.x,h.y,3,'#fff3bc')}
 for(const e of extra.effects){ctx.save();ctx.globalAlpha=e.t/e.life;ctx.strokeStyle=e.c;ctx.lineWidth=2+e.t*3;ctx.beginPath();ctx.arc(e.x,e.y,18+(1-e.t/e.life)*64,0,TWO);ctx.stroke();for(let i=0;i<7;i++){const a=i*TWO/7,r=20+(1-e.t/e.life)*62;ctx.save();ctx.translate(e.x+Math.cos(a)*r,e.y+Math.sin(a)*r);ctx.scale(.42,.42);drawPlayerShot({x:0,y:0,style:e.style,vx:Math.cos(a),vy:Math.sin(a),spin:a+clock*3});ctx.restore()}ctx.restore()}
 if(extra.chainBadge&&extra.chainBadge.t>0){ctx.save();ctx.globalAlpha=Math.min(1,extra.chainBadge.t*2);ctx.textAlign='center';ctx.fillStyle=heroes[selected].color;ctx.font='900 29px system-ui';ctx.fillText('콤보 ×'+extra.chainBadge.n,W/2,188);ctx.font='bold 14px system-ui';ctx.fillText('+'+scoreText(extra.chainBadge.points)+'점',W/2,213);ctx.restore()}
-const p=extra.p;if(extra.inv<=0||Math.floor(clock*9)%2===0){if(imgReady(selected)){ctx.save();ctx.translate(p.x,p.y);ctx.scale(p.face<0?-1:1,1);ctx.drawImage(heroImgs[selected],-27,-39,54,65);ctx.restore()}}ctx.font='12px system-ui';ctx.fillStyle='#b7d6ea';ctx.textAlign='center';ctx.fillText('↖ ↗ 이동+점프 · 팡! 길게 · 콤보 팡!',W/2,668)}
-let boardGesture=null;
-canvas.addEventListener('pointerdown',e=>{if(state!=='playing'||gameMode!=='tetris')return;e.preventDefault();canvas.setPointerCapture(e.pointerId);boardGesture={x:e.clientX,y:e.clientY,lastX:e.clientX,moved:false}});
-canvas.addEventListener('pointermove',e=>{if(!boardGesture||gameMode!=='tetris')return;let dx=e.clientX-boardGesture.lastX;const unit=canvas.getBoundingClientRect().width/420*25;if(Math.abs(dx)>unit){act(dx>0?'right':'left');boardGesture.lastX=e.clientX;boardGesture.moved=true}});
-canvas.addEventListener('pointerup',e=>{if(!boardGesture)return;const g=boardGesture;boardGesture=null;if(e.clientY-g.y>65)act('hard');else if(!g.moved&&Math.abs(e.clientY-g.y)<20)act('rotate')});canvas.addEventListener('pointercancel',()=>boardGesture=null);
+const p=extra.p;if(extra.inv<=0||Math.floor(clock*9)%2===0){if(imgReady(selected)){ctx.save();ctx.translate(p.x,p.y);ctx.scale(p.face<0?-1:1,1);ctx.drawImage(heroImgs[selected],-27,-39,54,65);ctx.restore()}}ctx.font='12px system-ui';ctx.fillStyle='#b7d6ea';ctx.textAlign='center';ctx.fillText('↖ ↗ 이동+점프 · 공명! 길게 · 콤보 공명!',W/2,668)}
+
+let constellationPointer=null;
+function constellationCoords(e){
+ const r=canvas.getBoundingClientRect();
+ return {x:(e.clientX-r.left-playView.x)/playView.scale,
+         y:(e.clientY-r.top-playView.y)/playView.scale};
+}
+function starPointerStart(e){
+ if(gameMode!=='constellation'||state!=='playing'||!extra||extra.wait>0)return;
+ if(e.cancelable)e.preventDefault();
+ const p=constellationCoords(e);const hit=constellationHitAt(p.x,p.y,true);
+ constellationPointer={id:e.pointerId,at:p,last:p};
+ extra.drag=hit||extra.progress>0;extra.hover=p;
+ if(e.pointerId!==undefined)try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+}
+function starPointerMove(e){
+ if(!constellationPointer||gameMode!=='constellation'||state!=='playing'||!extra)return;
+ if(e.cancelable)e.preventDefault();
+ const p=constellationCoords(e);
+ if(extra.drag)constellationSegment(constellationPointer.last.x,constellationPointer.last.y,p.x,p.y);
+ constellationPointer.last=p;extra.hover=p;
+}
+function starPointerEnd(e){
+ if(!constellationPointer||gameMode!=='constellation')return;
+ const p=constellationCoords(e);
+ if(extra&&extra.drag)constellationSegment(constellationPointer.last.x,constellationPointer.last.y,p.x,p.y);
+ constellationPointer=null;
+ if(extra){extra.drag=false;extra.hover=null}
+}
+canvas.addEventListener('pointerdown',starPointerStart);
+canvas.addEventListener('pointermove',starPointerMove);
+canvas.addEventListener('pointerup',starPointerEnd);
+canvas.addEventListener('pointercancel',()=>{constellationPointer=null;if(extra){extra.drag=false;extra.hover=null}});
+if(!window.PointerEvent){
+ const touchConvert=t=>({clientX:t.clientX,clientY:t.clientY,preventDefault(){},cancelable:false});
+ canvas.addEventListener('touchstart',e=>{if(gameMode==='constellation'&&e.touches.length){e.preventDefault();starPointerStart(touchConvert(e.touches[0]))}},{passive:false});
+ canvas.addEventListener('touchmove',e=>{if(gameMode==='constellation'&&e.touches.length){e.preventDefault();starPointerMove(touchConvert(e.touches[0]))}},{passive:false});
+ canvas.addEventListener('touchend',e=>{if(gameMode==='constellation'&&e.changedTouches.length){e.preventDefault();starPointerEnd(touchConvert(e.changedTouches[0]))}},{passive:false});
+ canvas.addEventListener('touchcancel',()=>{constellationPointer=null;if(extra){extra.drag=false;extra.hover=null}});
+}
+
 // Capture alternate-game keys before the original shooter's handlers.
-addEventListener('keydown',e=>{if(gameMode==='galaga')return;const map=gameMode==='tetris'?{ArrowLeft:'left',ArrowRight:'right',ArrowUp:'rotate',ArrowDown:'down',Space:'hard'}:{Space:'jump',ArrowUp:'jump',KeyX:'attack',KeyZ:'pop'};if(map[e.code]){e.preventDefault();e.stopImmediatePropagation();if(!e.repeat||['ArrowLeft','ArrowRight','ArrowDown'].includes(e.code))act(map[e.code])}},true);
+addEventListener('keydown',e=>{if(gameMode==='galaga')return;const map=gameMode==='constellation'?{}:{Space:'jump',ArrowUp:'jump',KeyX:'attack',KeyZ:'pop'};if(map[e.code]){e.preventDefault();e.stopImmediatePropagation();if(!e.repeat||['ArrowLeft','ArrowRight','ArrowDown'].includes(e.code))act(map[e.code])}},true);
 ui.reselect.addEventListener('click',e=>{if(state==='menu'||state==='gameover'){e.stopImmediatePropagation();state='menu';menuHero()}},true);
 
 function loop(ms){let dt=last?clamp((ms-last)/1000,0,.04):.016;last=ms;step(dt);draw();requestAnimationFrame(loop)}
 ui.start.addEventListener('click',()=>{if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();run()});ui.reselect.addEventListener('click',()=>exitGame());ui.endSession.addEventListener('click',()=>exitGame());ui.quickExit.addEventListener('click',()=>exitGame());ui.pause.addEventListener('click',()=>{if(state==='playing')show('paused');else if(state==='paused')run()});ui.bomb.addEventListener('click',e=>{e.stopPropagation();ultimate()});ui.sound.addEventListener('click',()=>{soundOn=!soundOn;ui.sound.textContent=soundOn?'사운드 켜짐':'사운드 꺼짐';if(soundOn)sound('up')});
 addEventListener('keydown',e=>{if(e.code==='Escape'&&!ui.rankModal.hidden){closeRank();return}if(['ArrowLeft','ArrowRight','Space','KeyB','KeyX'].includes(e.code))e.preventDefault();if(e.code==='ArrowLeft'||e.code==='KeyA')input.left=true;if(e.code==='ArrowRight'||e.code==='KeyD')input.right=true;if(e.repeat)return;if(['KeyB','KeyX','Space'].includes(e.code))ultimate();if(e.code==='KeyP'||e.code==='Escape'){if(state==='playing')show('paused');else if(state==='paused')run()}if(e.code==='Enter'&&state!=='playing')run()});addEventListener('keyup',e=>{if(['ArrowLeft','KeyA'].includes(e.code))input.left=false;if(['ArrowRight','KeyD'].includes(e.code))input.right=false});
-function pointerX(e){let r=canvas.getBoundingClientRect();input.x=clamp((e.clientX-r.left)/r.width*W,29,W-29)}
+function pointerX(e){let r=canvas.getBoundingClientRect();input.x=clamp((e.clientX-r.left-playView.x)/playView.scale,29,W-29)}
 function attachDrag(target){target.addEventListener('pointerdown',e=>{if(state!=='playing'||gameMode!=='galaga')return;e.preventDefault();input.touch=true;pointerX(e);try{target.setPointerCapture(e.pointerId)}catch(_){}});target.addEventListener('pointermove',e=>{if(state==='playing'&&gameMode==='galaga'&&input.touch){e.preventDefault();pointerX(e)}});target.addEventListener('pointerup',()=>input.touch=false);target.addEventListener('pointercancel',()=>input.touch=false);}
 attachDrag(canvas);attachDrag(ui.touchLane);
 if(!window.PointerEvent){[canvas,ui.touchLane].forEach(function(el){el.addEventListener('touchstart',function(e){if(state!=='playing'||!e.touches.length)return;e.preventDefault();input.touch=true;pointerX(e.touches[0])},{passive:false});el.addEventListener('touchmove',function(e){if(state!=='playing'||!input.touch||!e.touches.length)return;e.preventDefault();pointerX(e.touches[0])},{passive:false});el.addEventListener('touchend',function(){input.touch=false},{passive:true});el.addEventListener('touchcancel',function(){input.touch=false},{passive:true});});}
@@ -345,6 +672,6 @@ if(!window.PointerEvent){[canvas,ui.touchLane].forEach(function(el){el.addEventL
 })();addEventListener('blur',()=>{input.left=false;input.right=false;input.touch=false;if(state==='playing')show('paused')});document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')show('paused')});
 playerInit();initRecords();show('menu');requestAnimationFrame(loop);
 // Read-only state for regression/smoke tests. Debug wave jump is enabled only with ?test=1.
-Object.defineProperty(window,'galaxyDebug',{get:()=>({state,gameMode,tetris:gameMode==='tetris'&&extra?{x:extra.x,y:extra.y,piece:extra.p,next:extra.next,lines:extra.lines,occupied:extra.board.flat().filter(Boolean).length}:null,bubble:gameMode==='bubble'&&extra?{x:extra.p.x,y:extra.p.y,bubbles:extra.bubbles.length,trapped:extra.foes.filter(e=>e.trapped&&e.alive).length,remaining:extra.foes.filter(e=>e.alive).length}:null,hero:heroes[selected].name,weapon:(player?player.weapon:undefined),mastery:(player?player.mastery:undefined),wave,bossTier:(boss?boss.tier:undefined)||null,bossPhase:(boss?boss.phase:undefined)||null,bossHp:(boss?boss.hp:undefined)||null,score,bombs:(player?player.bombs:undefined),lives:(player?player.hp:undefined),playerX:(player?player.x:undefined),playerY:(player?player.y:undefined),enemies:enemies.filter(e=>!e.dead).length,enemyShots:enemyShots.length})});
+Object.defineProperty(window,'galaxyDebug',{get:()=>({state,gameMode,constellation:gameMode==='constellation'&&extra?{progress:extra.progress,count:extra.count,time:extra.time,stage:wave,finished:extra.finished}:null,bubble:gameMode==='bubble'&&extra?{x:extra.p.x,y:extra.p.y,bubbles:extra.bubbles.length,trapped:extra.foes.filter(e=>e.trapped&&e.alive).length,remaining:extra.foes.filter(e=>e.alive).length}:null,hero:heroes[selected].name,weapon:(player?player.weapon:undefined),mastery:(player?player.mastery:undefined),wave,bossTier:(boss?boss.tier:undefined)||null,bossPhase:(boss?boss.phase:undefined)||null,bossHp:(boss?boss.hp:undefined)||null,score,bombs:(player?player.bombs:undefined),lives:(player?player.hp:undefined),playerX:(player?player.x:undefined),playerY:(player?player.y:undefined),enemies:enemies.filter(e=>!e.dead).length,enemyShots:enemyShots.length})});
 if(new URLSearchParams(location.search).get('test')==='1')window.galaxyTest={wave(n){if(state!=='playing')run();wave=n;spawnWave();},damageBoss(n){if(boss)bossDamage(n,boss.x,boss.y)},upgrade(n=1){for(let i=0;i<n;i++)levelUp()},killEnemies(){enemies.forEach(e=>{e.hp=0;kill(e)})},invincible(){player.inv=99999}};
 })();</script></body></html>
