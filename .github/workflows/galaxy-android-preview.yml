@@ -1,7 +1,7 @@
 name: Galaxy Android Preview
 on:
   push:
-    branches: [galaxy-android-20261015, release/android-1.2.2-20261016, main]
+    branches: [galaxy-android-20261015, release/android-1.2.2-20261016, feature/galaxy-i18n-1.2.3-20261016, main]
     paths: ['android/**', 'games/galaxy-defense/**', '.github/workflows/galaxy-android-preview.yml']
   workflow_dispatch:
 permissions:
@@ -21,6 +21,11 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with: {gradle-version: '8.13'}
       - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Validate localization JavaScript
+        run: |
+          node --check games/galaxy-defense/i18n.js
+          node --check android/app/src/main/assets/i18n.js
+          cmp games/galaxy-defense/i18n.js android/app/src/main/assets/i18n.js
       - name: Build preview APK and unsigned AAB
         run: gradle -p android :app:assembleDebug :app:bundleRelease :app:lintDebug --no-daemon
       - uses: actions/upload-artifact@v4
