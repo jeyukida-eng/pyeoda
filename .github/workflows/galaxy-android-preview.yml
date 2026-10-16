@@ -1,8 +1,8 @@
 name: Galaxy Android Preview
 on:
   push:
-    branches: [galaxy-android-20261015]
-    paths: ['android/**', '.github/workflows/galaxy-android-preview.yml']
+    branches: [galaxy-android-20261015, release/android-1.2.2-20261016, main]
+    paths: ['android/**', 'games/galaxy-defense/**', '.github/workflows/galaxy-android-preview.yml']
   workflow_dispatch:
 permissions:
   contents: read
