@@ -3,7 +3,7 @@ android {
     namespace 'com.pyoda.galaxydefense'
     compileSdk 36
     buildFeatures { buildConfig true }
-    defaultConfig { applicationId 'com.pyoda.galaxydefense'; minSdk 26; targetSdk 36; versionCode 1; versionName '1.2.2' }
+    defaultConfig { applicationId 'com.pyoda.galaxydefense'; minSdk 26; targetSdk 36; versionCode 1; versionName '1.2.3' }
     def uploadStore = System.getenv('PYODA_UPLOAD_STORE')
     signingConfigs {
         if (uploadStore) {
