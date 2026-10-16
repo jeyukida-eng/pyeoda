@@ -74,7 +74,7 @@ html,body{background:#0c1017;color:var(--ink)}body{background:#0c1017}
 .arcade-controls .control-actions button[data-action=hard]{background:#c1d797;border:0;color:#202d1b}.arcade-controls .control-actions button[data-action=hard].pressed{background:#adc880}.arcade-controls .control-actions button[data-action=hard] small{color:#34442c}
 </style></head><body>
 <main class="shell"><canvas id="game" aria-label="좌우로 캐릭터를 움직이는 자동 발사 우주 슈팅 게임" tabindex="0"></canvas>
-<header class="hud"><div class="hudrow"><div class="metric score"><small>점수</small><strong id="score">000000</strong></div><div class="metric wave"><small>단계</small><strong id="wave">01</strong></div><div class="metric"><small>생명</small><div class="hearts" id="hearts">♥ ♥ ♥</div></div><button class="pause" id="pause" aria-label="일시정지">Ⅱ</button></div><div class="hudsub"><span class="combo" id="combo">✦ 준비 완료</span><span class="best"><span class="build-version">1.2.1 · </span>BEST <b id="best">000000</b></span></div><div class="stagebar"><span id="progress"></span></div><div class="top-guide"><span>↔ 손가락으로 좌우 이동</span><button type="button" id="quickExit" aria-label="게임 종료하고 캐릭터 선택으로 돌아가기">나가기</button></div></header>
+<header class="hud"><div class="hudrow"><div class="metric score"><small>점수</small><strong id="score">000000</strong></div><div class="metric wave"><small>단계</small><strong id="wave">01</strong></div><div class="metric"><small>생명</small><div class="hearts" id="hearts">♥ ♥ ♥</div></div><button class="pause" id="pause" aria-label="일시정지">Ⅱ</button></div><div class="hudsub"><span class="combo" id="combo">✦ 준비 완료</span><span class="best"><span class="build-version">1.2.2 · </span>BEST <b id="best">000000</b></span></div><div class="stagebar"><span id="progress"></span></div><div class="top-guide"><span>↔ 손가락으로 좌우 이동</span><button type="button" id="quickExit" aria-label="게임 종료하고 캐릭터 선택으로 돌아가기">나가기</button></div></header>
 <div class="banner" id="banner" role="status" aria-live="polite"><strong id="bannerTitle"></strong><small id="bannerSub"></small></div>
 <div id="touchLane" class="touch-lane" role="group" aria-label="손가락을 좌우로 움직여 캐릭터 조종"><span>↔ 이곳을 밀어 좌우 이동</span></div>
 <div class="bottom"><div class="power"><div class="power-title"><span id="heroHud">HERO · 부이</span><b id="weaponLabel">LV.1 / 10</b></div><div class="bars" id="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="power-meta"><span id="weaponName">황금 화살 미사일</span><span id="shieldLabel">◇ 실드 없음</span><span id="powerLabel">성장 준비</span></div></div><button class="bomb" id="bomb" aria-label="필살기 사용"><b id="bombCount">2</b><i>✹</i><span>필살기</span></button></div>
@@ -361,9 +361,11 @@ function constellationComplete(){
  const points=Math.round((350+wave*90+extra.time*19)*bonus);
  score+=points;
  extra.finished++;
- extra.wait=.86;
+ extra.wait=1.65;
+ extra.lastCompletePoints=points;
+ // Display the success message in a centered game card; never in the top banner.
+ ui.banner.classList.remove('show');alertRemain=0;
  sound('up');vibrate(30);
- banner('별자리 완성!','+'+points.toLocaleString()+'점 · 다음 별자리',.8);
 }
 function constellationHitAt(x,y,fromPointer=false){
  if(state!=='playing'||gameMode!=='constellation'||!extra||extra.wait>0)return false;
@@ -465,7 +467,7 @@ function drawConstellation(){
  ctx.textAlign='center';ctx.fillStyle='#e5e8df';ctx.font='750 19px system-ui';
  ctx.fillText('별자리 '+String(wave).padStart(2,'0')+' · '+['황금화살','몽돌','꽃잎'][selected],210,155);
  ctx.fillStyle='#a9b8bc';ctx.font='12px system-ui';
- ctx.fillText(e.wait>0?'새로운 별자리를 준비하고 있어요':'빛나는 문양부터 차례로 연결하세요',210,181);
+ ctx.fillText(e.wait>0?'잠시 후 다음 별자리':'빛나는 문양부터 차례로 연결하세요',210,181);
 
  // Gentle beginner guide, no sequential numbers.
  if(wave<=3||e.progress>0){
@@ -523,6 +525,23 @@ function drawConstellation(){
  ctx.fillText(['부이 · 황금화살 / 연결 범위 확대','몽돌이 · 몽돌 / 시간 +5초','소랑이 · 꽃잎 / 점수 +30%'][selected],75,651);
  ctx.fillStyle='#91a1ac';ctx.font='11px system-ui';
  ctx.fillText(e.progress+' / '+e.count+'개 연결',75,672);
+ // Draw the stage-complete card LAST, centered below the top instructions.
+ if(e.wait>0){
+  ctx.save();
+  ctx.globalAlpha=.56;ctx.fillStyle='#08111d';ctx.fillRect(0,195,W,440);
+  ctx.globalAlpha=1;
+  round(60,300,300,150,18,'#182638');
+  ctx.strokeStyle=cc;ctx.lineWidth=2;ctx.beginPath();
+  ctx.roundRect(60,300,300,150,18);ctx.stroke();
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle='#f4f8f0';ctx.font='800 24px system-ui';
+  ctx.fillText('별자리 완성!',210,337);
+  ctx.fillStyle=cc;ctx.font='750 19px system-ui';
+  ctx.fillText('+'+(e.lastCompletePoints||0).toLocaleString()+'점',210,380);
+  ctx.fillStyle='#cad9dc';ctx.font='700 15px system-ui';
+  ctx.fillText('다음 단계 · STAGE '+String(wave+1).padStart(2,'0'),210,416);
+  ctx.restore();
+ }
  ctx.restore();
 }
 
