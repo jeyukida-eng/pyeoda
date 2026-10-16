@@ -21,11 +21,17 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with: {gradle-version: '8.13'}
       - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
-      - name: Validate localization JavaScript
+      - name: Validate separate web demo and Android full edition
         run: |
           node --check games/galaxy-defense/i18n.js
           node --check android/app/src/main/assets/i18n.js
-          cmp games/galaxy-defense/i18n.js android/app/src/main/assets/i18n.js
+          # Edition-specific translations may differ. Never overwrite full Android assets
+          # with the publicly limited web demo during any build.
+          grep -q 'const WEB_DEMO = true;' games/galaxy-defense/index.html
+          if grep -q 'const WEB_DEMO = true;' android/app/src/main/assets/index.html; then
+            echo 'ERROR: Android paid edition must not contain web-demo restrictions.'
+            exit 1
+          fi
       - name: Build preview APK and unsigned AAB
         run: gradle -p android :app:assembleDebug :app:bundleRelease :app:lintDebug --no-daemon
       - uses: actions/upload-artifact@v4
