@@ -10,6 +10,16 @@ let locale=saved==='ko'||saved==='en'?saved:(/^ko(?:-|$)/i.test(systemLocale)?'k
 
 // Prefer whole sentences. Short phrases and dynamic score/stage fragments are handled below.
 const lexicon=[
+['무료 체험판 · 게임별 첫 1단계','Free Demo · Stage 1 of each game'],
+['세 게임의 1단계 체험이 완료됐어요!','You have completed stage 1 of all three games!'],
+['첫 단계 체험을 완료했어요!','You completed stage 1!'],
+['모든 단계와 보스전은 Google Play 정식판에서 만날 수 있어요.','Enjoy all stages and boss battles in the full Google Play version.'],
+['정식판 출시 준비 중','Full version coming to Google Play'],
+['온라인 랭킹은 정식판에서 제공됩니다.','Online rankings are available in the full version.'],
+['웹 체험판은 서버에 기록을 전송하지 않습니다. 내 기록은 기기에만 저장됩니다.','The web demo does not upload scores. Scores stay on this device.'],
+['무료 체험판 · 내 기록만 저장됩니다','Free demo · Local scores only'],
+['체험 완료!','Demo Complete!'],
+['첫 단계 클리어','Stage 1 Cleared!'],
 ['필살기 사용','Use special attack'],
 ['게임 메뉴','Game Menu'],
 ['◇ 실드 없음','◇ No shield'],

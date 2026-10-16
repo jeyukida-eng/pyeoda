@@ -72,6 +72,12 @@ html,body{background:#0c1017;color:var(--ink)}body{background:#0c1017}
 @media(max-height:620px){.overlay.selecting .title{font-size:25px;margin-top:5px}.overlay.selecting .subttl{margin-bottom:10px}.overlay.selecting .desc{display:none}.overlay.selecting .hero-option .portrait{height:70px}.overlay.selecting .hero-option small{display:none}.overlay.selecting .selected-info{display:block;margin-bottom:7px}.overlay.selecting .rank-top3{min-height:32px}.overlay.selecting .rank-item{font-size:8px;line-height:12px}.game-options button{min-height:58px;padding:8px 12px}.game-options button.active{padding:7px 11px}.game-options .game-mark{width:28px;height:28px}.game-options svg{width:25px;height:25px}.game-options .game-copy{gap:2px}.game-options button b{font-size:14px}.overlay.selecting .mini,.overlay.selecting .sound-toggle{display:none}}
 
 .arcade-controls .control-actions button[data-action=hard]{background:#c1d797;border:0;color:#202d1b}.arcade-controls .control-actions button[data-action=hard].pressed{background:#adc880}.arcade-controls .control-actions button[data-action=hard] small{color:#34442c}
+
+/* Public game demo: one playable first stage per game; mobile-first notice. */
+.demo-badge{display:inline-flex;align-items:center;justify-content:center;gap:5px;margin:0 0 9px;padding:4px 11px;border:1px solid #89f5dd80;border-radius:999px;background:#0b3d46ad;color:#b2ffef;font-size:11px;font-weight:900;letter-spacing:0;line-height:1.45}
+.demo-notice{display:flex;flex-direction:column;align-items:center;gap:5px;margin:0 0 8px;padding:11px 12px;border:1px solid #7fedda96;border-radius:13px;background:linear-gradient(135deg,#134352ee,#101b35f0);color:#e7fff8;font-size:12px;line-height:1.5;max-width:335px}
+.demo-notice[hidden]{display:none}.demo-notice b{color:#8affdb;font-size:13px}.demo-notice .demo-availability{display:inline-block;margin-top:1px;font-size:11px;color:#ffd88e;font-weight:900}
+@media(max-height:690px){.demo-notice{padding:7px 10px;gap:2px;font-size:11px}.demo-badge{padding:2px 8px;margin-bottom:5px;font-size:10px}}
 </style></head><body>
 <main class="shell"><canvas id="game" aria-label="좌우로 캐릭터를 움직이는 자동 발사 우주 슈팅 게임" tabindex="0"></canvas>
 <header class="hud"><div class="hudrow"><div class="metric score"><small>점수</small><strong id="score">000000</strong></div><div class="metric wave"><small>단계</small><strong id="wave">01</strong></div><div class="metric"><small>생명</small><div class="hearts" id="hearts">♥ ♥ ♥</div></div><button class="pause" id="pause" aria-label="일시정지">Ⅱ</button></div><div class="hudsub"><span class="combo" id="combo">✦ 준비 완료</span><span class="best"><span class="build-version">1.2.3 · </span>BEST <b id="best">000000</b></span></div><div class="stagebar"><span id="progress"></span></div><div class="top-guide"><span>↔ 손가락으로 좌우 이동</span><button type="button" id="quickExit" aria-label="게임 종료하고 캐릭터 선택으로 돌아가기">나가기</button></div></header>
@@ -99,6 +105,10 @@ if(typeof CanvasRenderingContext2D!=='undefined' && !CanvasRenderingContext2D.pr
  }
 }
 (()=>{'use strict';
+// PUBLIC WEB EDITION ONLY. The installed Android app remains a separate full version.
+// These stage limits are a public demo feature, NOT copy protection: the repository is public.
+const WEB_DEMO = true;
+const WEB_DEMO_MAX_STAGE = 1;
 const W=420,H=820,TWO=Math.PI*2, $=id=>document.getElementById(id), clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),rnd=(a,b)=>a+Math.random()*(b-a),range=(a,b)=>Math.floor(rnd(a,b));
 const canvas=$('game'),ctx=canvas.getContext('2d',{alpha:false})||canvas.getContext('2d');
 const heroes=[{name:'부이',type:'fire',name2:'황금 화살 미사일',color:'#ffbd73',desc:'황금화살 · 폭발',speed:345,rate:.18,baseDamage:1.15},{name:'몽돌이',type:'rock',name2:'몽돌 관통탄',color:'#cbb1ff',desc:'몽돌 · 충격파',speed:308,rate:.235,baseDamage:1.65},{name:'소랑이',type:'spirit',name2:'꽃잎 유도탄',color:'#85ffcf',desc:'꽃잎 · 회복',speed:390,rate:.145,baseDamage:.9}];
@@ -125,20 +135,20 @@ function initRecords(){try{let v=JSON.parse(readSafe('galaxy-arcade-records','[]
  ui.rankOpen.addEventListener('click',()=>openRank('global'));ui.rankClose.addEventListener('click',closeRank);
  ui.rankTabGlobal.addEventListener('click',()=>openRank('global'));ui.rankTabMine.addEventListener('click',()=>openRank('mine'));
  ui.rankModal.addEventListener('click',e=>{if(e.target===ui.rankModal)closeRank()});
- showRankSummary();loadGlobalRanks();
+ if(WEB_DEMO)remoteStatus='demo';showRankSummary();if(!WEB_DEMO)loadGlobalRanks();
 }
 function makeRankRow(position,name,hero,points,stage){const row=document.createElement('div');row.className='rank-item';for(const [cl,txt] of [['place',position],['who',name+' · '+hero],['points',scoreText(points)],['wave-col','W'+stage]]){const span=document.createElement('span');span.className=cl;span.textContent=txt;row.appendChild(span)}return row}
-function showRankSummary(){ui.rankMyBest.textContent='내 최고 '+scoreText(best)+'점';ui.rankTop3.replaceChildren();if(remoteStatus==='ok'&&remoteRanks.length){remoteRanks.slice(0,3).forEach((r,i)=>ui.rankTop3.appendChild(makeRankRow((i+1)+'위',r.nickname,r.hero,r.score,r.wave)))}else{const e=document.createElement('div');e.className='rank-empty';e.textContent=remoteStatus==='loading'?'순위 불러오는 중…':remoteStatus==='error'?'연결 안 됨 · 내 기록은 저장됩니다':'첫 번째 기록의 주인공이 되어주세요';ui.rankTop3.appendChild(e)} }
+function showRankSummary(){ui.rankMyBest.textContent='내 최고 '+scoreText(best)+'점';ui.rankTop3.replaceChildren();if(remoteStatus==='ok'&&remoteRanks.length){remoteRanks.slice(0,3).forEach((r,i)=>ui.rankTop3.appendChild(makeRankRow((i+1)+'위',r.nickname,r.hero,r.score,r.wave)))}else{const e=document.createElement('div');e.className='rank-empty';e.textContent=remoteStatus==='loading'?'순위 불러오는 중…':remoteStatus==='error'?'연결 안 됨 · 내 기록은 저장됩니다':remoteStatus==='demo'?'무료 체험판 · 내 기록만 저장됩니다':'첫 번째 기록의 주인공이 되어주세요';ui.rankTop3.appendChild(e)} }
 async function postGalaxy(name,body){const ctl=(typeof AbortController!=='undefined')?new AbortController():null;const t=ctl?setTimeout(()=>ctl.abort(),9000):null;try{const response=await fetch(GALAXY_API+name,{method:'POST',headers:{'apikey':GALAXY_PUBLIC_KEY,'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctl?ctl.signal:undefined});if(!response.ok)throw new Error('score api '+response.status);return await response.json()}finally{if(t)clearTimeout(t)}}
 async function loadGlobalRanks(){remoteStatus='loading';showRankSummary();try{let result=await postGalaxy('galaxy_top_scores',{p_limit:10});remoteRanks=Array.isArray(result)?result:[];remoteStatus='ok'}catch(e){console.warn('Leaderboard load failed',e.message);remoteStatus='error'}showRankSummary();if(!ui.rankModal.hidden&&rankView==='global')renderRankList()}
 function openRank(view){rankView=view;ui.rankModal.hidden=false;ui.rankTabGlobal.classList.toggle('active',view==='global');ui.rankTabMine.classList.toggle('active',view==='mine');renderRankList()}
 function closeRank(){ui.rankModal.hidden=true}
 function renderRankList(){ui.rankList.replaceChildren();if(rankView==='global'){
- if(remoteStatus==='ok'&&remoteRanks.length){remoteRanks.forEach((r,i)=>ui.rankList.appendChild(makeRankRow((i+1)+'위',r.nickname,r.hero,r.score,r.wave)))}else{const msg=document.createElement('p');msg.className='rank-empty';msg.textContent=remoteStatus==='loading'?'순위 가져오는 중…':remoteStatus==='error'?'인터넷 연결을 확인해 주세요.':'아직 등록된 기록이 없습니다.';ui.rankList.appendChild(msg)}
- ui.rankFoot.textContent='전체 순위는 각 플레이어의 최고 기록으로 집계됩니다. 로그인 없는 베타 순위로 점수 위변조 방지는 제한적입니다.';
+ if(remoteStatus==='ok'&&remoteRanks.length){remoteRanks.forEach((r,i)=>ui.rankList.appendChild(makeRankRow((i+1)+'위',r.nickname,r.hero,r.score,r.wave)))}else{const msg=document.createElement('p');msg.className='rank-empty';msg.textContent=remoteStatus==='loading'?'순위 가져오는 중…':remoteStatus==='error'?'인터넷 연결을 확인해 주세요.':remoteStatus==='demo'?'온라인 랭킹은 정식판에서 제공됩니다.':'아직 등록된 기록이 없습니다.';ui.rankList.appendChild(msg)}
+ ui.rankFoot.textContent=WEB_DEMO?'웹 체험판은 서버에 기록을 전송하지 않습니다. 내 기록은 기기에만 저장됩니다.':'전체 순위는 각 플레이어의 최고 기록으로 집계됩니다. 로그인 없는 베타 순위로 점수 위변조 방지는 제한적입니다.';
  }else{if(recentRecords.length){recentRecords.forEach((r,i)=>{let d=new Date(r.at);const date=Number.isNaN(d.getTime())?'최근':d.toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'});ui.rankList.appendChild(makeRankRow(date,r.name||'내 기록',r.hero,r.score,r.wave))})}else{const msg=document.createElement('p');msg.className='rank-empty';msg.textContent='아직 플레이한 기록이 없어요.';ui.rankList.appendChild(msg)}ui.rankFoot.textContent='내 최근 기록은 이 기기의 브라우저에 최대 12회까지 저장됩니다. 브라우저 데이터를 지우면 사라질 수 있습니다.'}}
 function finalizeRecord(){if(sessionRecorded)return;sessionRecorded=true;if(score<=0)return;let current={name:nickname.length>=2?nickname:'별여행자',hero:heroes[selected].name,score,wave,at:new Date().toISOString()};recentRecords.unshift(current);recentRecords=recentRecords.slice(0,12);putSafe('galaxy-arcade-records',JSON.stringify(recentRecords));showRankSummary();
- if(nickname.length<2){return}
+ if(nickname.length<2||WEB_DEMO){return}
  postGalaxy('galaxy_submit_score',{p_device:deviceId,p_nickname:nickname,p_hero:current.hero,p_score:score,p_wave:wave}).then(v=>{loadGlobalRanks()}).catch(e=>{console.warn('Rank submit failed. Local history remains saved.',e.message);remoteStatus='error';showRankSummary()});
 }
 
@@ -213,7 +223,7 @@ for(let i=enemyShots.length-1;i>=0;i--){let b=enemyShots[i];b.x+=b.vx*dt;b.y+=b.
 enemyAi(dt);bossAi(dt);
 for(let i=drops.length-1;i>=0;i--){let d=drops[i];d.y+=d.v*dt;d.x+=Math.sin(clock*2+d.phase)*17*dt;if(d.y>H+25){drops.splice(i,1);continue}if(Math.abs(d.x-player.x)<33&&Math.abs(d.y-player.y)<31){drops.splice(i,1);take(d)}}
 for(let i=particles.length-1;i>=0;i--){let p=particles[i];p.ttl-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.986;p.vy*=.986;if(p.ttl<=0)particles.splice(i,1)}for(let i=floaters.length-1;i>=0;i--){let f=floaters[i];f.ttl-=dt;f.y-=dt*33;if(f.ttl<=0)floaters.splice(i,1)}if(bombRing){bombRing.tt+=dt;bombRing.r+=dt*850;if(bombRing.tt>1.1)bombRing=null}
-if(enemies.every(e=>e.dead)&&!boss&&waveWait<0)waveWait=1.8;if(waveWait>=0){waveWait-=dt;if(waveWait<0){wave++;upgrade(.46+(wave%5===1?.2:0));if(selected===2&&wave%5===1)player.hp=Math.min(3,player.hp+1);if(wave%6===1)player.bombs=Math.min(5,player.bombs+1);spawnWave()}}
+if(enemies.every(e=>e.dead)&&!boss&&waveWait<0)waveWait=1.8;if(waveWait>=0){waveWait-=dt;if(waveWait<0){if(WEB_DEMO&&wave>=WEB_DEMO_MAX_STAGE){completeWebDemo();return}wave++;upgrade(.46+(wave%5===1?.2:0));if(selected===2&&wave%5===1)player.hp=Math.min(3,player.hp+1);if(wave%6===1)player.bombs=Math.min(5,player.bombs+1);spawnWave()}}
 if(frame%6===0)hud()}
 function path(points,fill,stroke,line=1){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=line;ctx.stroke()}}
 function circle(x,y,r,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.arc(x,y,r,0,TWO);ctx.fill()}
@@ -254,16 +264,41 @@ const controls=document.createElement('div');controls.className='arcade-controls
 function modeBest(){return Number(readSafe('galaxy-'+gameMode+'-best','0'))||0}
 function extraRecords(){try{return JSON.parse(readSafe('galaxy-'+gameMode+'-records','[]'))}catch(_){return []}}
 function extraSummary(){ui.rankMyBest.textContent='내 최고 '+scoreText(modeBest())+'점';ui.rankTop3.replaceChildren();extraRecords().slice().sort((a,b)=>b.score-a.score).slice(0,3).forEach((r,i)=>ui.rankTop3.append(makeRankRow((i+1)+'위',r.name,r.hero,r.score,r.wave)));if(!ui.rankTop3.childElementCount)ui.rankTop3.innerHTML='<div class="rank-empty">이 게임의 첫 기록을 만들어 보세요</div>';document.querySelector('.rank-head-title').textContent=gameNames[gameMode]+' · 내 TOP 3';ui.rankTabGlobal.textContent='내 최고 TOP 10'}
-function menuGames(){menuStep='game';games.hidden=false;ui.choices.hidden=true;ui.pick.textContent='02  게임';ui.desc.textContent=heroes[selected].name+'와 함께할 게임을 고르세요.';ui.start.textContent=gameNames[gameMode]+' 플레이';ui.reselect.hidden=false;ui.reselect.textContent='← 캐릭터 변경';ui.resume.style.display='block';ui.resume.style.width='65px';ui.resume.style.height='75px';games.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.game===gameMode));if(gameMode==='galaga'){document.querySelector('.rank-head-title').textContent='랭킹 TOP 3';ui.rankTabGlobal.textContent='전체 TOP 10';showRankSummary()}else extraSummary();ui.selected.innerHTML='<b>'+heroes[selected].name+'</b> · '+(gameMode==='constellation'?['황금 길잡이','시간 지킴이','꽃빛 점수'][selected]:['황금화살','몽돌','꽃잎'][selected]);document.querySelector('.mini').textContent=gameMode==='galaga'?'좌우 이동 · 자동 발사 · 필살기':gameMode==='constellation'?['황금화살: 빛나는 화살부터 이어보세요 · 넓은 터치','몽돌: 빛나는 몽돌부터 이어보세요 · 시간 +5초','꽃잎: 빛나는 꽃잎부터 이어보세요 · 점수 +30%'][selected]:'별빛 표식을 연결해 연쇄 공명 · 점프와 대시'}
+function menuGames(){if(WEB_DEMO)demoNotice.hidden=true;menuStep='game';games.hidden=false;ui.choices.hidden=true;ui.pick.textContent='02  게임';ui.desc.textContent=heroes[selected].name+'와 함께할 게임을 고르세요.';ui.start.textContent=gameNames[gameMode]+' 플레이';ui.reselect.hidden=false;ui.reselect.textContent='← 캐릭터 변경';ui.resume.style.display='block';ui.resume.style.width='65px';ui.resume.style.height='75px';games.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.game===gameMode));if(gameMode==='galaga'){document.querySelector('.rank-head-title').textContent='랭킹 TOP 3';ui.rankTabGlobal.textContent='전체 TOP 10';showRankSummary()}else extraSummary();ui.selected.innerHTML='<b>'+heroes[selected].name+'</b> · '+(gameMode==='constellation'?['황금 길잡이','시간 지킴이','꽃빛 점수'][selected]:['황금화살','몽돌','꽃잎'][selected]);document.querySelector('.mini').textContent=gameMode==='galaga'?'좌우 이동 · 자동 발사 · 필살기':gameMode==='constellation'?['황금화살: 빛나는 화살부터 이어보세요 · 넓은 터치','몽돌: 빛나는 몽돌부터 이어보세요 · 시간 +5초','꽃잎: 빛나는 꽃잎부터 이어보세요 · 점수 +30%'][selected]:'별빛 표식을 연결해 연쇄 공명 · 점프와 대시'}
 games.querySelectorAll('button').forEach(b=>b.onclick=()=>{gameMode=b.dataset.game;menuGames();sound('up')});
-function menuHero(){menuStep='hero';games.hidden=true;ui.choices.hidden=false;ui.resume.style.display='';ui.pick.textContent='01  캐릭터';ui.start.textContent='게임 고르기 →';ui.reselect.hidden=true;ui.desc.textContent='함께할 친구를 골라주세요.';ui.subtitle.textContent='세 친구의 우주 아케이드';document.querySelector('.mini').textContent='캐릭터를 고른 뒤 게임을 선택하세요.';document.querySelector('.footer-note').textContent='세 가지 독창적인 PYODA 미니게임';}
+function menuHero(){if(WEB_DEMO)demoNotice.hidden=true;menuStep='hero';games.hidden=true;ui.choices.hidden=false;ui.resume.style.display='';ui.pick.textContent='01  캐릭터';ui.start.textContent='게임 고르기 →';ui.reselect.hidden=true;ui.desc.textContent='함께할 친구를 골라주세요.';ui.subtitle.textContent='세 친구의 우주 아케이드';document.querySelector('.mini').textContent='캐릭터를 고른 뒤 게임을 선택하세요.';document.querySelector('.footer-note').textContent='세 가지 독창적인 PYODA 미니게임';}
+
+/* A deliberately small in-menu demo notice; no extra overlay blocks touch controls. */
+let demoFinished=false;
+const demoBadge=document.createElement('p');
+demoBadge.className='demo-badge';
+demoBadge.textContent='무료 체험판 · 게임별 첫 1단계';
+ui.subtitle.after(demoBadge);
+const demoNotice=document.createElement('div');
+demoNotice.className='demo-notice';
+demoNotice.hidden=true;
+demoNotice.innerHTML='<b>세 게임의 1단계 체험이 완료됐어요!</b><span>모든 단계와 보스전은 Google Play 정식판에서 만날 수 있어요.</span><span class="demo-availability">정식판 출시 준비 중</span>';
+ui.desc.after(demoNotice);
+function completeWebDemo(){
+ if(!WEB_DEMO||demoFinished)return;
+ demoFinished=true;
+ // Let the usual game-over path save personal records and restore menu controls.
+ show('gameover');
+ ui.kicker.textContent='PYODA FREE DEMO';
+ ui.title.textContent='체험 완료!';
+ ui.subtitle.textContent='첫 단계 클리어';
+ ui.desc.textContent=gameNames[gameMode]+' · '+scoreText(score)+'점';
+ demoNotice.hidden=false;
+ demoNotice.querySelector('b').textContent='첫 단계 체험을 완료했어요!';
+}
+
 const originalRun=run,originalShow=show,originalExit=exitGame,originalStep=step,originalDraw=draw,originalHud=hud,originalFinalize=finalizeRecord,originalSummary=showRankSummary,originalRank=renderRankList;
 showRankSummary=function(){if(gameMode==='galaga'){document.querySelector('.rank-head-title').textContent='랭킹 TOP 3';ui.rankTabGlobal.textContent='전체 TOP 10';originalSummary()}else extraSummary()};
 renderRankList=function(){if(gameMode==='galaga'){originalRank();return}ui.rankList.replaceChildren();const rows=extraRecords();(rankView==='global'?rows.slice().sort((a,b)=>b.score-a.score):rows).forEach((r,i)=>ui.rankList.append(makeRankRow((i+1)+'',r.name,r.hero,r.score,r.wave)));if(!rows.length)ui.rankList.innerHTML='<p class="rank-empty">아직 플레이한 기록이 없어요.</p>';ui.rankFoot.textContent=gameNames[gameMode]+' 기록은 이 기기에 저장됩니다. 게임별 최근 12회 기록입니다.'};
 finalizeRecord=function(){if(gameMode==='galaga'){originalFinalize();return}if(sessionRecorded)return;sessionRecorded=true;if(score<=0)return;let rows=extraRecords();rows.unshift({name:nickname||'별여행자',hero:heroes[selected].name,score,wave,at:new Date().toISOString()});putSafe('galaxy-'+gameMode+'-records',JSON.stringify(rows.slice(0,12)));putSafe('galaxy-'+gameMode+'-best',String(Math.max(score,modeBest())));extraSummary()};
-show=function(mode){if(mode!=='playing')releaseControls();originalShow(mode);games.hidden=true;if(mode==='menu')menuHero();else if(mode==='gameover'){menuStep='game';menuGames();ui.title.textContent='게임 종료';ui.desc.textContent=scoreText(score)+'점 · '+gameNames[gameMode]+' · 단계 '+wave;}else if(mode==='paused'){ui.resume.style.display='block';ui.reselect.hidden=true;ui.desc.textContent=gameNames[gameMode]+' · '+scoreText(score)+'점';}};
+show=function(mode){if(WEB_DEMO)demoNotice.hidden=true;if(mode!=='playing')releaseControls();originalShow(mode);games.hidden=true;if(mode==='menu')menuHero();else if(mode==='gameover'){menuStep='game';menuGames();ui.title.textContent='게임 종료';ui.desc.textContent=scoreText(score)+'점 · '+gameNames[gameMode]+' · 단계 '+wave;}else if(mode==='paused'){ui.resume.style.display='block';ui.reselect.hidden=true;ui.desc.textContent=gameNames[gameMode]+' · '+scoreText(score)+'점';}};
 exitGame=function(){releaseControls();originalExit();extra=null;controls.hidden=true;document.querySelector('.bottom').style.display='';ui.touchLane.style.display='';gameMode='galaga';showRankSummary();hud()};
-run=function(){if(state==='menu'&&menuStep==='hero'){menuGames();return}if(gameMode==='galaga'){controls.hidden=true;document.querySelector('.bottom').style.display='';ui.touchLane.style.display='';originalRun();return}if(state==='paused'){state='playing';ui.overlay.classList.add('hidden');hud();return}sessionRecorded=false;score=0;wave=1;combo=0;input.left=input.right=input.touch=false;playerInit();ui.overlay.classList.add('hidden');state='playing';games.hidden=true;document.querySelector('.bottom').style.display='none';ui.touchLane.style.display='none';controls.hidden=gameMode==='constellation';canvas.setAttribute('aria-label',gameNames[gameMode]+' 게임 화면');if(gameMode==='constellation')initConstellation();else initBubble();last=0;hud();draw();sound('up')};
+run=function(){if(WEB_DEMO){demoNotice.hidden=true;demoFinished=false}if(state==='menu'&&menuStep==='hero'){menuGames();return}if(gameMode==='galaga'){controls.hidden=true;document.querySelector('.bottom').style.display='';ui.touchLane.style.display='';originalRun();return}if(state==='paused'){state='playing';ui.overlay.classList.add('hidden');hud();return}sessionRecorded=false;score=0;wave=1;combo=0;input.left=input.right=input.touch=false;playerInit();ui.overlay.classList.add('hidden');state='playing';games.hidden=true;document.querySelector('.bottom').style.display='none';ui.touchLane.style.display='none';controls.hidden=gameMode==='constellation';canvas.setAttribute('aria-label',gameNames[gameMode]+' 게임 화면');if(gameMode==='constellation')initConstellation();else initBubble();last=0;hud();draw();sound('up')};
 hud=function(){canvas.parentElement.dataset.gameMode=gameMode;size();if(gameMode==='galaga'){document.querySelector('.top-guide span').textContent='↔ 손가락으로 좌우 이동';originalHud();return}ui.score.textContent=scoreText(score);ui.best.textContent=scoreText(Math.max(score,modeBest()));ui.wave.textContent=String(wave).padStart(2,'0');ui.hearts.textContent=gameMode==='constellation'?Math.ceil(extra?.time||0)+'초':'♥ '.repeat(Math.max(0,player.hp));ui.combo.textContent=gameMode==='constellation'?'별 '+(extra?.progress||0)+' / '+(extra?.count||0)+' 연결 · '+['황금 길잡이','시간 +5초','꽃빛 추가점수'][selected]:heroes[selected].name+' · '+['황금화살','몽돌','꽃잎'][selected]+(extra?' · '+Math.ceil(extra.time||0)+'초':'');ui.pause.textContent=state==='paused'?'▶':'Ⅱ';document.querySelector('.top-guide span').textContent=gameMode==='constellation'?'빛나는 '+['황금화살','몽돌','꽃잎'][selected]+'부터 차례로 연결':'↖ ↗ 이동+점프 · 가까운 별빛구슬은 콤보 공명!';ui.progress.style.width=gameMode==='constellation'&&extra?Math.round(100*extra.progress/extra.count)+'%':'0%'};
 step=function(dt){if(gameMode==='galaga'){originalStep(dt);return}clock+=dt;if(alertRemain>0){alertRemain-=dt;if(alertRemain<=0)ui.banner.classList.remove('show')}if(state!=='playing'||!extra)return;if(gameMode==='constellation')stepConstellation(dt);else {stepControls(dt);stepBubble(dt)}hud()};
 draw=function(){if(gameMode==='galaga'||!extra){originalDraw();return}beginPlayfield();background();if(gameMode==='constellation')drawConstellation();else drawBubble()};
@@ -401,7 +436,7 @@ function stepConstellation(dt){
  if(!extra)return;
  if(extra.wait>0){
   extra.wait-=dt;
-  if(extra.wait<=0){wave++;constellationStage()}
+  if(extra.wait<=0){if(WEB_DEMO&&wave>=WEB_DEMO_MAX_STAGE){completeWebDemo();return}wave++;constellationStage()}
   return;
  }
  extra.time=Math.max(0,extra.time-dt);
@@ -539,7 +574,7 @@ function drawConstellation(){
   ctx.fillStyle=cc;ctx.font='750 19px system-ui';
   ctx.fillText('+'+(e.lastCompletePoints||0).toLocaleString()+'점',210,380);
   ctx.fillStyle='#cad9dc';ctx.font='700 15px system-ui';
-  ctx.fillText('다음 단계 · STAGE '+String(wave+1).padStart(2,'0'),210,416);
+  ctx.fillText(WEB_DEMO?'체험 완료!':'다음 단계 · STAGE '+String(wave+1).padStart(2,'0'),210,416);
   ctx.restore();
  }
  ctx.restore();
@@ -583,7 +618,7 @@ function stepBubble(dt){
  const contacts=extra.bubbles.filter(b=>b.enemy&&!b.queued&&b.life>0&&Math.hypot(b.x-p.x,b.y-p.y)<43);if(contacts.length)startBubbleChain(contacts);
  extra.bubbles=extra.bubbles.filter(b=>b.life>0);extra.effects.forEach(e=>e.t-=dt);extra.effects=extra.effects.filter(e=>e.t>0);if(extra.chainBadge)extra.chainBadge.t-=dt;
  const near=extra.bubbles.some(b=>b.enemy&&!b.queued&&Math.hypot(b.x-p.x,b.y-p.y)<105);const attack=controls.querySelector('[data-action=attack]');if(attack){attack.classList.toggle('ready',near);attack.querySelector('small').textContent=near?'콤보 공명!':'공명!'}
- if(extra.foes.every(e=>!e.alive)&&!extra.chain){extra.wait+=dt;if(extra.wait>1){wave++;score+=500;if(wave%3===1)player.hp=Math.min(3,player.hp+1);bubbleStage()}}
+ if(extra.foes.every(e=>!e.alive)&&!extra.chain){extra.wait+=dt;if(extra.wait>1){if(WEB_DEMO&&wave>=WEB_DEMO_MAX_STAGE){completeWebDemo();return}wave++;score+=500;if(wave%3===1)player.hp=Math.min(3,player.hp+1);bubbleStage()}}
 }
 function drawBubble(){
  for(const pl of extra.platforms){round(pl.x,pl.y,pl.w,13,5,'#364350');round(pl.x,pl.y,pl.w,3,2,'#91b6a5')}
@@ -671,7 +706,7 @@ if(!window.PointerEvent){[canvas,ui.touchLane].forEach(function(el){el.addEventL
  })(controls[i]);
 })();addEventListener('blur',()=>{input.left=false;input.right=false;input.touch=false;if(state==='playing')show('paused')});document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')show('paused')});
 playerInit();initRecords();show('menu');requestAnimationFrame(loop);
-// Read-only state for regression/smoke tests. Debug wave jump is enabled only with ?test=1.
-Object.defineProperty(window,'galaxyDebug',{get:()=>({state,gameMode,constellation:gameMode==='constellation'&&extra?{progress:extra.progress,count:extra.count,time:extra.time,stage:wave,finished:extra.finished}:null,bubble:gameMode==='bubble'&&extra?{x:extra.p.x,y:extra.p.y,bubbles:extra.bubbles.length,trapped:extra.foes.filter(e=>e.trapped&&e.alive).length,remaining:extra.foes.filter(e=>e.alive).length}:null,hero:heroes[selected].name,weapon:(player?player.weapon:undefined),mastery:(player?player.mastery:undefined),wave,bossTier:(boss?boss.tier:undefined)||null,bossPhase:(boss?boss.phase:undefined)||null,bossHp:(boss?boss.hp:undefined)||null,score,bombs:(player?player.bombs:undefined),lives:(player?player.hp:undefined),playerX:(player?player.x:undefined),playerY:(player?player.y:undefined),enemies:enemies.filter(e=>!e.dead).length,enemyShots:enemyShots.length})});
-if(new URLSearchParams(location.search).get('test')==='1')window.galaxyTest={wave(n){if(state!=='playing')run();wave=n;spawnWave();},damageBoss(n){if(boss)bossDamage(n,boss.x,boss.y)},upgrade(n=1){for(let i=0;i<n;i++)levelUp()},killEnemies(){enemies.forEach(e=>{e.hp=0;kill(e)})},invincible(){player.inv=99999}};
+// Read-only state for regression/smoke tests. The public demo has no wave-jump controls.
+Object.defineProperty(window,'galaxyDebug',{get:()=>({demo:WEB_DEMO,demoFinished,state,gameMode,constellation:gameMode==='constellation'&&extra?{progress:extra.progress,count:extra.count,time:extra.time,stage:wave,finished:extra.finished}:null,bubble:gameMode==='bubble'&&extra?{x:extra.p.x,y:extra.p.y,bubbles:extra.bubbles.length,trapped:extra.foes.filter(e=>e.trapped&&e.alive).length,remaining:extra.foes.filter(e=>e.alive).length}:null,hero:heroes[selected].name,weapon:(player?player.weapon:undefined),mastery:(player?player.mastery:undefined),wave,bossTier:(boss?boss.tier:undefined)||null,bossPhase:(boss?boss.phase:undefined)||null,bossHp:(boss?boss.hp:undefined)||null,score,bombs:(player?player.bombs:undefined),lives:(player?player.hp:undefined),playerX:(player?player.x:undefined),playerY:(player?player.y:undefined),enemies:enemies.filter(e=>!e.dead).length,enemyShots:enemyShots.length})});
+// No public test-mode controls in the web demo.
 })();</script><script src="./i18n.js?v=1.2.3"></script></body></html>

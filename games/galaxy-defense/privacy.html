@@ -24,7 +24,7 @@
 <ul>
 <li><strong>기기 내 저장:</strong> 선택 캐릭터, 게임 설정 및 언어, 닉네임(자동 생성 또는 직접 변경), 최고점, 최근 플레이 기록, 앱에서 임의 생성한 식별자(UUID)가 기기 내 저장소에 저장됩니다. 최근 플레이 기록은 게임별 최대 12회까지 저장될 수 있습니다.</li>
 <li><strong>안드로이드 온라인 랭킹 참여 시:</strong> 닉네임, 임의 생성 식별자, 캐릭터 이름, 점수, 도달 단계가 암호화된 HTTPS 연결로 Supabase 순위 서버에 전달됩니다. 기록 시각도 서버에 저장됩니다. 이 식별자는 광고 ID, 전화번호 또는 기기 하드웨어 일련번호가 아닙니다.</li>
-<li><strong>웹 체험판:</strong> 웹 버전은 안드로이드 앱과 달리 온라인 랭킹 조회 및 점수 업로드가 기본적으로 작동할 수 있습니다. 웹에서 플레이하고 점수를 기록하면 위의 랭킹 정보가 서버에 전달될 수 있습니다.</li>
+<li><strong>웹 체험판:</strong> 웹 버전은 세 게임의 첫 단계만 플레이할 수 있습니다. 점수와 닉네임은 기기에만 저장하며, 웹 체험판에서는 온라인 랭킹 서버에 기록을 전송하거나 순위를 조회하지 않습니다.</li>
 <li><strong>서비스 접속 정보:</strong> 서버 제공자가 서비스 보안, 운영 및 장애 대응을 위해 IP 주소나 요청 로그 등 접속 정보를 처리할 수 있습니다.</li>
 </ul>
 <h2>2. 이용 목적 및 공개 범위</h2>
@@ -50,7 +50,7 @@
 <ul>
 <li><strong>Stored on your device:</strong> selected hero, gameplay settings and language, your nickname (automatically generated or edited), high scores, recent game history, and a randomly generated app identifier (UUID). Up to 12 recent game records per game may be kept locally.</li>
 <li><strong>When you opt into online rankings on Android:</strong> nickname, randomly generated app identifier, hero name, score, and stage reached are sent via HTTPS to our Supabase leaderboard. The server also stores the time the score was achieved. The identifier is not your advertising ID, phone number, or hardware serial number.</li>
-<li><strong>Web demo:</strong> unlike the Android app, the browser game may fetch online rankings and submit scores by default. Playing and completing a game on the website may transmit the same leaderboard data.</li>
+<li><strong>Web demo:</strong> the browser edition lets you try the first stage of each game. Scores and nicknames are stored locally on your device. The web demo does not upload scores to, or fetch rankings from, the leaderboard server.</li>
 <li><strong>Service logs:</strong> the infrastructure provider may process IP addresses or request logs to operate, secure, and troubleshoot its services.</li>
 </ul>
 <h2>2. Why we use it and what is visible</h2>
