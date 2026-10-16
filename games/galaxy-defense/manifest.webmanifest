@@ -1,14 +1,14 @@
 {
-  "name": "은하 방어선 · HERO EVOLUTION",
-  "short_name": "은하 방어선",
-  "description": "부이·몽돌이·소랑이와 함께하는 우주 슈팅게임",
+  "name": "은하방어선 · PYODA 아케이드",
+  "short_name": "은하방어선",
+  "description": "부이·몽돌이·소랑이와 함께하는 우주방어전·스타블록·별빛대작전",
   "lang": "ko",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#030b22",
-  "theme_color": "#020817",
+  "background_color": "#10151f",
+  "theme_color": "#10151f",
   "icons": [
     {
       "src": "./icon-192.png",
