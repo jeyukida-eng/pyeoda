@@ -74,7 +74,7 @@ html,body{background:#0c1017;color:var(--ink)}body{background:#0c1017}
 .arcade-controls .control-actions button[data-action=hard]{background:#c1d797;border:0;color:#202d1b}.arcade-controls .control-actions button[data-action=hard].pressed{background:#adc880}.arcade-controls .control-actions button[data-action=hard] small{color:#34442c}
 </style></head><body>
 <main class="shell"><canvas id="game" aria-label="좌우로 캐릭터를 움직이는 자동 발사 우주 슈팅 게임" tabindex="0"></canvas>
-<header class="hud"><div class="hudrow"><div class="metric score"><small>점수</small><strong id="score">000000</strong></div><div class="metric wave"><small>단계</small><strong id="wave">01</strong></div><div class="metric"><small>생명</small><div class="hearts" id="hearts">♥ ♥ ♥</div></div><button class="pause" id="pause" aria-label="일시정지">Ⅱ</button></div><div class="hudsub"><span class="combo" id="combo">✦ 준비 완료</span><span class="best"><span class="build-version">1.2.0 · </span>BEST <b id="best">000000</b></span></div><div class="stagebar"><span id="progress"></span></div><div class="top-guide"><span>↔ 손가락으로 좌우 이동</span><button type="button" id="quickExit" aria-label="게임 종료하고 캐릭터 선택으로 돌아가기">나가기</button></div></header>
+<header class="hud"><div class="hudrow"><div class="metric score"><small>점수</small><strong id="score">000000</strong></div><div class="metric wave"><small>단계</small><strong id="wave">01</strong></div><div class="metric"><small>생명</small><div class="hearts" id="hearts">♥ ♥ ♥</div></div><button class="pause" id="pause" aria-label="일시정지">Ⅱ</button></div><div class="hudsub"><span class="combo" id="combo">✦ 준비 완료</span><span class="best"><span class="build-version">1.2.1 · </span>BEST <b id="best">000000</b></span></div><div class="stagebar"><span id="progress"></span></div><div class="top-guide"><span>↔ 손가락으로 좌우 이동</span><button type="button" id="quickExit" aria-label="게임 종료하고 캐릭터 선택으로 돌아가기">나가기</button></div></header>
 <div class="banner" id="banner" role="status" aria-live="polite"><strong id="bannerTitle"></strong><small id="bannerSub"></small></div>
 <div id="touchLane" class="touch-lane" role="group" aria-label="손가락을 좌우로 움직여 캐릭터 조종"><span>↔ 이곳을 밀어 좌우 이동</span></div>
 <div class="bottom"><div class="power"><div class="power-title"><span id="heroHud">HERO · 부이</span><b id="weaponLabel">LV.1 / 10</b></div><div class="bars" id="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="power-meta"><span id="weaponName">황금 화살 미사일</span><span id="shieldLabel">◇ 실드 없음</span><span id="powerLabel">성장 준비</span></div></div><button class="bomb" id="bomb" aria-label="필살기 사용"><b id="bombCount">2</b><i>✹</i><span>필살기</span></button></div>
@@ -254,7 +254,7 @@ const controls=document.createElement('div');controls.className='arcade-controls
 function modeBest(){return Number(readSafe('galaxy-'+gameMode+'-best','0'))||0}
 function extraRecords(){try{return JSON.parse(readSafe('galaxy-'+gameMode+'-records','[]'))}catch(_){return []}}
 function extraSummary(){ui.rankMyBest.textContent='내 최고 '+scoreText(modeBest())+'점';ui.rankTop3.replaceChildren();extraRecords().slice().sort((a,b)=>b.score-a.score).slice(0,3).forEach((r,i)=>ui.rankTop3.append(makeRankRow((i+1)+'위',r.name,r.hero,r.score,r.wave)));if(!ui.rankTop3.childElementCount)ui.rankTop3.innerHTML='<div class="rank-empty">이 게임의 첫 기록을 만들어 보세요</div>';document.querySelector('.rank-head-title').textContent=gameNames[gameMode]+' · 내 TOP 3';ui.rankTabGlobal.textContent='내 최고 TOP 10'}
-function menuGames(){menuStep='game';games.hidden=false;ui.choices.hidden=true;ui.pick.textContent='02  게임';ui.desc.textContent=heroes[selected].name+'와 함께할 게임을 고르세요.';ui.start.textContent=gameNames[gameMode]+' 플레이';ui.reselect.hidden=false;ui.reselect.textContent='← 캐릭터 변경';ui.resume.style.display='block';ui.resume.style.width='65px';ui.resume.style.height='75px';games.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.game===gameMode));if(gameMode==='galaga'){document.querySelector('.rank-head-title').textContent='랭킹 TOP 3';ui.rankTabGlobal.textContent='전체 TOP 10';showRankSummary()}else extraSummary();ui.selected.innerHTML='<b>'+heroes[selected].name+'</b> · '+(gameMode==='constellation'?['황금 길잡이','시간 지킴이','꽃빛 점수'][selected]:['황금화살','몽돌','꽃잎'][selected]);document.querySelector('.mini').textContent=gameMode==='galaga'?'좌우 이동 · 자동 발사 · 필살기':gameMode==='constellation'?'별 ①부터 순서대로 드래그 또는 터치 · 시간 안에 완성':'별빛 표식을 연결해 연쇄 공명 · 점프와 대시'}
+function menuGames(){menuStep='game';games.hidden=false;ui.choices.hidden=true;ui.pick.textContent='02  게임';ui.desc.textContent=heroes[selected].name+'와 함께할 게임을 고르세요.';ui.start.textContent=gameNames[gameMode]+' 플레이';ui.reselect.hidden=false;ui.reselect.textContent='← 캐릭터 변경';ui.resume.style.display='block';ui.resume.style.width='65px';ui.resume.style.height='75px';games.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.game===gameMode));if(gameMode==='galaga'){document.querySelector('.rank-head-title').textContent='랭킹 TOP 3';ui.rankTabGlobal.textContent='전체 TOP 10';showRankSummary()}else extraSummary();ui.selected.innerHTML='<b>'+heroes[selected].name+'</b> · '+(gameMode==='constellation'?['황금 길잡이','시간 지킴이','꽃빛 점수'][selected]:['황금화살','몽돌','꽃잎'][selected]);document.querySelector('.mini').textContent=gameMode==='galaga'?'좌우 이동 · 자동 발사 · 필살기':gameMode==='constellation'?['황금화살: 빛나는 화살부터 이어보세요 · 넓은 터치','몽돌: 빛나는 몽돌부터 이어보세요 · 시간 +5초','꽃잎: 빛나는 꽃잎부터 이어보세요 · 점수 +30%'][selected]:'별빛 표식을 연결해 연쇄 공명 · 점프와 대시'}
 games.querySelectorAll('button').forEach(b=>b.onclick=()=>{gameMode=b.dataset.game;menuGames();sound('up')});
 function menuHero(){menuStep='hero';games.hidden=true;ui.choices.hidden=false;ui.resume.style.display='';ui.pick.textContent='01  캐릭터';ui.start.textContent='게임 고르기 →';ui.reselect.hidden=true;ui.desc.textContent='함께할 친구를 골라주세요.';ui.subtitle.textContent='세 친구의 우주 아케이드';document.querySelector('.mini').textContent='캐릭터를 고른 뒤 게임을 선택하세요.';document.querySelector('.footer-note').textContent='세 가지 독창적인 PYODA 미니게임';}
 const originalRun=run,originalShow=show,originalExit=exitGame,originalStep=step,originalDraw=draw,originalHud=hud,originalFinalize=finalizeRecord,originalSummary=showRankSummary,originalRank=renderRankList;
@@ -264,7 +264,7 @@ finalizeRecord=function(){if(gameMode==='galaga'){originalFinalize();return}if(s
 show=function(mode){if(mode!=='playing')releaseControls();originalShow(mode);games.hidden=true;if(mode==='menu')menuHero();else if(mode==='gameover'){menuStep='game';menuGames();ui.title.textContent='게임 종료';ui.desc.textContent=scoreText(score)+'점 · '+gameNames[gameMode]+' · 단계 '+wave;}else if(mode==='paused'){ui.resume.style.display='block';ui.reselect.hidden=true;ui.desc.textContent=gameNames[gameMode]+' · '+scoreText(score)+'점';}};
 exitGame=function(){releaseControls();originalExit();extra=null;controls.hidden=true;document.querySelector('.bottom').style.display='';ui.touchLane.style.display='';gameMode='galaga';showRankSummary();hud()};
 run=function(){if(state==='menu'&&menuStep==='hero'){menuGames();return}if(gameMode==='galaga'){controls.hidden=true;document.querySelector('.bottom').style.display='';ui.touchLane.style.display='';originalRun();return}if(state==='paused'){state='playing';ui.overlay.classList.add('hidden');hud();return}sessionRecorded=false;score=0;wave=1;combo=0;input.left=input.right=input.touch=false;playerInit();ui.overlay.classList.add('hidden');state='playing';games.hidden=true;document.querySelector('.bottom').style.display='none';ui.touchLane.style.display='none';controls.hidden=gameMode==='constellation';canvas.setAttribute('aria-label',gameNames[gameMode]+' 게임 화면');if(gameMode==='constellation')initConstellation();else initBubble();last=0;hud();draw();sound('up')};
-hud=function(){canvas.parentElement.dataset.gameMode=gameMode;size();if(gameMode==='galaga'){document.querySelector('.top-guide span').textContent='↔ 손가락으로 좌우 이동';originalHud();return}ui.score.textContent=scoreText(score);ui.best.textContent=scoreText(Math.max(score,modeBest()));ui.wave.textContent=String(wave).padStart(2,'0');ui.hearts.textContent=gameMode==='constellation'?Math.ceil(extra?.time||0)+'초':'♥ '.repeat(Math.max(0,player.hp));ui.combo.textContent=gameMode==='constellation'?'별 '+(extra?.progress||0)+' / '+(extra?.count||0)+' 연결 · '+['황금 길잡이','시간 +5초','꽃빛 추가점수'][selected]:heroes[selected].name+' · '+['황금화살','몽돌','꽃잎'][selected]+(extra?' · '+Math.ceil(extra.time||0)+'초':'');ui.pause.textContent=state==='paused'?'▶':'Ⅱ';document.querySelector('.top-guide span').textContent=gameMode==='constellation'?'①부터 번호 순서대로 별을 이어보세요':'↖ ↗ 이동+점프 · 가까운 별빛구슬은 콤보 공명!';ui.progress.style.width=gameMode==='constellation'&&extra?Math.round(100*extra.progress/extra.count)+'%':'0%'};
+hud=function(){canvas.parentElement.dataset.gameMode=gameMode;size();if(gameMode==='galaga'){document.querySelector('.top-guide span').textContent='↔ 손가락으로 좌우 이동';originalHud();return}ui.score.textContent=scoreText(score);ui.best.textContent=scoreText(Math.max(score,modeBest()));ui.wave.textContent=String(wave).padStart(2,'0');ui.hearts.textContent=gameMode==='constellation'?Math.ceil(extra?.time||0)+'초':'♥ '.repeat(Math.max(0,player.hp));ui.combo.textContent=gameMode==='constellation'?'별 '+(extra?.progress||0)+' / '+(extra?.count||0)+' 연결 · '+['황금 길잡이','시간 +5초','꽃빛 추가점수'][selected]:heroes[selected].name+' · '+['황금화살','몽돌','꽃잎'][selected]+(extra?' · '+Math.ceil(extra.time||0)+'초':'');ui.pause.textContent=state==='paused'?'▶':'Ⅱ';document.querySelector('.top-guide span').textContent=gameMode==='constellation'?'빛나는 '+['황금화살','몽돌','꽃잎'][selected]+'부터 차례로 연결':'↖ ↗ 이동+점프 · 가까운 별빛구슬은 콤보 공명!';ui.progress.style.width=gameMode==='constellation'&&extra?Math.round(100*extra.progress/extra.count)+'%':'0%'};
 step=function(dt){if(gameMode==='galaga'){originalStep(dt);return}clock+=dt;if(alertRemain>0){alertRemain-=dt;if(alertRemain<=0)ui.banner.classList.remove('show')}if(state!=='playing'||!extra)return;if(gameMode==='constellation')stepConstellation(dt);else {stepControls(dt);stepBubble(dt)}hud()};
 draw=function(){if(gameMode==='galaga'||!extra){originalDraw();return}beginPlayfield();background();if(gameMode==='constellation')drawConstellation();else drawBubble()};
 const layoutObserver=new ResizeObserver(size);for(const el of [canvas.parentElement,document.querySelector('.hud'),document.querySelector('.bottom'),controls])layoutObserver.observe(el);
@@ -346,7 +346,7 @@ function constellationStage(){
  extra.wait=0;extra.lastMiss=-10;
  extra.timeMax=Math.max(18,34-wave*1.2)+(selected===1?5:0);
  extra.time=extra.timeMax;
- banner('별자리 '+wave+'단계','①부터 '+extra.count+'개의 별을 이어주세요',1.25);
+ banner('별자리 '+wave+'단계','빛나는 '+['황금화살','몽돌','꽃잎'][selected]+'부터 차례로 이어주세요',1.3);
  hud();
 }
 function initConstellation(){
@@ -405,57 +405,122 @@ function stepConstellation(dt){
  extra.time=Math.max(0,extra.time-dt);
  if(extra.time<=0){show('gameover');return}
 }
+
+// Character-exclusive artwork: every constellation node uses a gold arrow,
+// volcanic pebble, or flower-petal emblem. No numbered nodes are drawn.
+function constellationGlyph(x,y,scale=1){
+ ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
+ const style=['arrow','pebble','petal'][selected];
+ // Existing character-specific projectile illustrations are original vector paths.
+ drawPlayerShot({x:0,y:0,style,vx:0,vy:-1,spin:clock*.14});
+ ctx.restore();
+}
+function constellationTrail(a,b,opacity=1){
+ const hue=['#f5ba58','#b1a3dc','#8dedbc'][selected];
+ ctx.save();ctx.globalAlpha=opacity;ctx.strokeStyle=hue;
+ ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=selected===1?5:selected===0?4:3.2;
+ if(selected===1)ctx.setLineDash([3,10]);
+ ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+ ctx.setLineDash([]);
+ const dx=b.x-a.x,dy=b.y-a.y,ang=Math.atan2(dy,dx),distance=Math.hypot(dx,dy);
+ if(selected===0){
+  // Golden arrows fly in the completed direction.
+  for(let t=.3;t<.9;t+=.35){
+   ctx.save();ctx.translate(a.x+dx*t,a.y+dy*t);ctx.rotate(ang);
+   ctx.fillStyle='#fff0a4';ctx.beginPath();
+   ctx.moveTo(7,0);ctx.lineTo(-5,-5);ctx.lineTo(-2,0);ctx.lineTo(-5,5);ctx.closePath();ctx.fill();ctx.restore();
+  }
+ }else if(selected===1){
+  // Individual mineral fragments distinguish Mongdoli's trail.
+  for(let t=.25;t<.95;t+=.25){
+   ctx.save();ctx.translate(a.x+dx*t,a.y+dy*t);ctx.rotate(ang+t);
+   ctx.fillStyle='#dad4f3';ctx.beginPath();ctx.ellipse(0,0,4,3,0,0,TWO);ctx.fill();ctx.restore();
+  }
+ }else{
+  // Sorang-i leaves a sequence of small flower petals.
+  const count=Math.min(7,Math.max(3,Math.round(distance/26)));
+  for(let k=0;k<count;k++){
+   const t=(k+.6)/(count+.5);
+   ctx.save();ctx.translate(a.x+dx*t,a.y+dy*t);
+   ctx.rotate(ang+.4*Math.sin(clock*2+k));ctx.fillStyle=k%2?'#f9d1e3':'#bdfbe0';
+   ctx.beginPath();ctx.ellipse(0,0,4.5,2.9,Math.PI/4,0,TWO);ctx.fill();ctx.restore();
+  }
+ }
+ ctx.restore();
+}
 function drawConstellation(){
  if(!extra)return;
  const e=extra,hero=heroes[selected],cc=hero.color;
  ctx.save();
  const gradient=ctx.createRadialGradient(210,385,20,210,385,340);
- gradient.addColorStop(0,'#253551');gradient.addColorStop(.54,'#142333');gradient.addColorStop(1,'#10151f');
+ gradient.addColorStop(0,['#42321e','#242d4b','#18382f'][selected]);
+ gradient.addColorStop(.54,['#24271f','#1b2333','#152932'][selected]);
+ gradient.addColorStop(1,'#10151f');
  ctx.fillStyle=gradient;ctx.fillRect(0,125,W,575);
- for(const d of e.decor){ctx.globalAlpha=d.a*(.8+.2*Math.sin(clock*2+d.x));circle(d.x,d.y,d.r,'#d0e5e8')}
+ for(const d of e.decor){
+  ctx.globalAlpha=d.a*(.8+.2*Math.sin(clock*2+d.x));
+  circle(d.x,d.y,d.r,'#d0e5e8');
+ }
  ctx.globalAlpha=1;
- ctx.textAlign='center';ctx.fillStyle='#d4ded5';ctx.font='700 19px system-ui';
- ctx.fillText('별자리 '+String(wave).padStart(2,'0'),210,155);
- ctx.fillStyle='#97a9b2';ctx.font='12px system-ui';
- ctx.fillText(e.wait>0?'별빛이 모이고 있어요':'별을 순서대로 연결해 완성하세요',210,181);
- // Hint line: very faint once the player has learned the game.
+ ctx.textAlign='center';ctx.fillStyle='#e5e8df';ctx.font='750 19px system-ui';
+ ctx.fillText('별자리 '+String(wave).padStart(2,'0')+' · '+['황금화살','몽돌','꽃잎'][selected],210,155);
+ ctx.fillStyle='#a9b8bc';ctx.font='12px system-ui';
+ ctx.fillText(e.wait>0?'새로운 별자리를 준비하고 있어요':'빛나는 문양부터 차례로 연결하세요',210,181);
+
+ // Gentle beginner guide, no sequential numbers.
  if(wave<=3||e.progress>0){
-  ctx.save();ctx.strokeStyle=cc;ctx.globalAlpha=wave<=3?.13:.055;
-  ctx.lineWidth=1.5;ctx.setLineDash([3,7]);ctx.beginPath();
+  ctx.save();ctx.strokeStyle=cc;ctx.globalAlpha=wave<=3?.17:.065;ctx.lineWidth=1.5;
+  ctx.setLineDash([3,7]);ctx.beginPath();
   e.nodes.forEach((n,i)=>{const p=constellationPosition(n);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y)});
   ctx.stroke();ctx.setLineDash([]);ctx.restore();
  }
- // Completed route stays visible while the next point pulses.
+
+ // Character-specific connecting lines.
  if(e.progress>1){
-  ctx.strokeStyle=cc;ctx.lineWidth=4;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
-  e.nodes.slice(0,e.progress).forEach((n,i)=>{const p=constellationPosition(n);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y)});
-  ctx.stroke();
+  for(let i=1;i<e.progress;i++){
+   constellationTrail(constellationPosition(e.nodes[i-1]),constellationPosition(e.nodes[i]));
+  }
  }
- // Stroke preview follows the moving finger.
  if(e.drag&&e.progress>0&&e.progress<e.count&&e.hover){
+  ctx.save();ctx.globalAlpha=.33;ctx.strokeStyle=cc;ctx.lineWidth=2;
   const p=constellationPosition(e.nodes[e.progress-1]);
-  ctx.save();ctx.strokeStyle=cc;ctx.globalAlpha=.45;ctx.lineWidth=2;
   ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(e.hover.x,e.hover.y);ctx.stroke();ctx.restore();
  }
+
  for(let i=0;i<e.nodes.length;i++){
   const p=constellationPosition(e.nodes[i]),done=i<e.progress,next=i===e.progress;
-  const pulse=1+.07*Math.sin(clock*5+i);
+  const pulse=1+.11*Math.sin(clock*4.7+i);
   ctx.save();ctx.translate(p.x,p.y);
+
+  // Active target is visible without numbering. Other targets keep hero artwork.
   if(next&&e.wait<=0){
-   ctx.strokeStyle=cc;ctx.globalAlpha=.44;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,29*pulse,0,TWO);ctx.stroke();
+   const radius=selected===0?32:29;
+   ctx.save();ctx.globalAlpha=.38+.17*Math.sin(clock*4.7+i);
+   ctx.strokeStyle=cc;ctx.lineWidth=2.5;
+   ctx.beginPath();ctx.arc(0,0,radius*pulse,0,TWO);ctx.stroke();
+   ctx.globalAlpha=.16;circle(0,0,radius-1,cc);ctx.restore();
+   ctx.fillStyle='#f6f8ec';ctx.textAlign='center';ctx.textBaseline='middle';
+   ctx.font='800 11px system-ui';ctx.fillText(i===0?'시작':'다음',0,-39);
   }
-  ctx.globalAlpha=done?1:next?1:.73;
-  circle(0,0,done?17:16,done?cc:'#293747');
-  ctx.strokeStyle=done?cc:next?'#efffec':'#9baab5';ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(0,0,done?18:17,0,TWO);ctx.stroke();
-  ctx.fillStyle=done?'#142537':next?'#f0fff4':'#e0e8ee';
-  ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='800 13px system-ui';
-  ctx.fillText(done?'✓':String(i+1),0,1);
+
+  ctx.globalAlpha=done?1:next?1:.77;
+  circle(0,0,done?22:21,done?['#3e321e','#343247','#1c4538'][selected]:'#1c2836');
+  ctx.strokeStyle=done?cc:next?'#eaffed':'#677d8a';
+  ctx.lineWidth=done?2.2:1.4;ctx.beginPath();ctx.arc(0,0,done?22:21,0,TWO);ctx.stroke();
+
+  // Precisely replace the former number / checkmark with the character motif.
+  constellationGlyph(0,0,selected===0?.7:selected===1?1.65:1.05);
+  if(done){
+   ctx.globalAlpha=1;
+   circle(17,17,5.5,cc);
+   circle(17,17,2.4,'#f5f8f3');
+  }
   ctx.restore();
  }
- if(imgReady(selected)){ctx.save();ctx.globalAlpha=.8;ctx.drawImage(heroImgs[selected],10,609,56,73);ctx.restore()}
+
+ if(imgReady(selected)){ctx.save();ctx.globalAlpha=.82;ctx.drawImage(heroImgs[selected],10,609,56,73);ctx.restore()}
  ctx.textAlign='left';ctx.fillStyle='#d8e6d7';ctx.font='bold 11px system-ui';
- ctx.fillText(['부이 · 연결 범위 확대','몽돌이 · 시간 +5초','소랑이 · 완료 점수 +30%'][selected],75,651);
+ ctx.fillText(['부이 · 황금화살 / 연결 범위 확대','몽돌이 · 몽돌 / 시간 +5초','소랑이 · 꽃잎 / 점수 +30%'][selected],75,651);
  ctx.fillStyle='#91a1ac';ctx.font='11px system-ui';
  ctx.fillText(e.progress+' / '+e.count+'개 연결',75,672);
  ctx.restore();
