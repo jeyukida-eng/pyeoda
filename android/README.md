@@ -8,7 +8,7 @@
 - com.pyoda.galaxydefense (정식 패키지 후보), 디버그판은 .preview 추가
 - Java 17 / Android Gradle Plugin 8.13.2 / Gradle 8.13
 - Android 16 API 36 target/compile, 최소 Android 8 API 26
-- 현재 게임 파일을 앱에 포함하여 기본 플레이는 오프라인 가능
+- 최종 1.2.2 게임 파일(우주방어전·별자리 잇기·별빛대작전)을 앱에 포함하여 기본 플레이는 오프라인 가능
 - 온라인 순위는 기본 꺼짐, 이용자가 전송 안내를 확인하면 활성화
 - 기존 캐릭터 아이콘 사용, 카메라/위치/연락처 권한 없음
 - WebViewAssetLoader의 HTTPS 가상 주소로 로컬 파일 제공
