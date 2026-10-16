@@ -10,6 +10,15 @@ let locale=saved==='ko'||saved==='en'?saved:(/^ko(?:-|$)/i.test(systemLocale)?'k
 
 // Prefer whole sentences. Short phrases and dynamic score/stage fragments are handled below.
 const lexicon=[
+['필살기 사용','Use special attack'],
+['게임 메뉴','Game Menu'],
+['◇ 실드 없음','◇ No shield'],
+['강화 ','Boost '],
+['난이도 ','Difficulty '],
+['↩ 처음으로','↩ Back to Start'],
+['최종 ','Final '],
+[' 게임 화면',' game screen'],
+['별 ','Stars '],
 ['온라인 랭킹을 켜면 닉네임, 임의 생성한 기기 식별자, 점수와 단계가 서버에 전송되고 닉네임·기록이 공개됩니다. 켤까요?','Enable online rankings? Your nickname, randomly generated device ID, score and stage will be sent to the server. Your nickname and scores will be public. Continue?'],
 ['전체 순위는 각 플레이어의 최고 기록으로 집계됩니다. 로그인 없는 베타 순위로 점수 위변조 방지는 제한적입니다.','Global rankings use each player’s best score. This beta leaderboard has limited score verification.'],
 ['내 최근 기록은 이 기기의 브라우저에 최대 12회까지 저장됩니다. 브라우저 데이터를 지우면 사라질 수 있습니다.','Up to 12 recent plays are saved on this device. Clearing browser data may remove them.'],
