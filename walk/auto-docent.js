@@ -20,7 +20,7 @@
   }
   function showStory(i){
     const story=course.stories[i];
-    $('storyTitle').textContent=story.title;$('storyText').textContent=story.text;
+    $('storyTitle').textContent=story.title;$('storyText').textContent=course.taglines[i]||story.title;
     $('nextPlace').textContent=story.next;$('nextEta').textContent=story.eta;
     // Numbered point marks the story's place; it is not a live position estimate.
     $('pulse').hidden=true;
@@ -33,7 +33,7 @@
     const startedFn=()=>{if(token!==epoch)return;started=true;engine.complete(i);engine.pending=i;progress();message(course.points[i]+' · 이야기 재생 중');};
     const finished=()=>{if(token!==epoch)return;speaking=false;engine.release();message(active?'다음 장소를 향해 걸어주세요.':'이야기를 마쳤습니다.');};
     if(window.PyodaSpeech){ // Android native wrapper exposes completion via bridge events.
-      message('이 버전의 자동 안내는 휴대폰 브라우저에서 확인해 주세요.');speaking=false;engine.release();return;
+      window.PyodaNative.postMessage(JSON.stringify({type:'speak',text,index:i}));return;
     }
     if(!('speechSynthesis'in window)){speaking=false;engine.release();message('이 브라우저에서는 음성 안내를 지원하지 않습니다.');return;}
     speechSynthesis.cancel();utterance=new SpeechSynthesisUtterance(text);utterance.lang='ko-KR';utterance.rate=.94;
@@ -46,6 +46,7 @@
     if(active){stop();message('자동 안내를 종료했습니다.');return;}
     if(!configured()){message('등록된 실제 좌표가 없습니다. 장소 설정에서 안내 지점을 먼저 지정해 주세요.');$('placeSettings').open=true;return;}
     if(!geo){message('휴대폰에서 위치 기능을 사용할 수 없습니다.');return;}
+    if(window.PyodaNative)window.PyodaNative.postMessage(JSON.stringify({type:'configure',route:{courseId:course.id,name:course.name,places:points().map((p,i)=>({...p,configured:A.validPoint(p),text:course.stories[i].text,title:course.points[i]}))}}));
     active=true;paused=false;$('pulse').hidden=true;$('gpsBtn').textContent='자동 안내 종료';
     $('pauseBtn').disabled=false;$('pauseBtn').textContent='일시정지';
     // A real utterance in the start-button gesture unlocks speech on mobile browsers.
@@ -53,6 +54,7 @@
     message('위치를 확인합니다. 등록 지점 반경 30~40m 안에서 잠시 기다리면 이야기가 시작됩니다.');
     watch=geo.watchPosition(position=>{
       if(!active||paused||document.hidden)return;
+      if(window.PyodaNative){if(!speaking)message('자동 안내 중 · 화면을 꺼도 계속됩니다.');return;}
       const result=engine.update(position);
       if(result.state==='arrived'){play(result.index,true);return;}
       if(speaking)return;
@@ -83,7 +85,7 @@
     $('placeSource').textContent='이 휴대폰에 저장했습니다. 다른 사람에게 적용하려면 좌표 내보내기 파일을 전달해 주세요.';
   }
   $('placeSelect').onchange=loadFields;$('savePlace').onclick=savePlace;
-  $('capturePlace').onclick=()=>{stop();
+  $('capturePlace').onclick=()=>{stop();if(window.PyodaNative)window.PyodaNative.postMessage(JSON.stringify({type:'configure',route:{courseId:'capture',name:'장소 지정',places:[]}}));
     if(!geo){$('placeSource').textContent='위치 기능을 사용할 수 없습니다.';return;}
     if(capture!==null){geo.clearWatch(capture);capture=null;}
     $('placeSource').textContent='해당 장소에 서서 위치를 확인하는 중입니다…';
@@ -108,11 +110,12 @@
   window.addEventListener('pyoda-course',event=>{stop();course=event.detail;resetEngine();refreshPlaces();start();});
   $('gpsBtn').onclick=()=>{$('demoBtn').dispatchEvent(new CustomEvent('stop-demo'));start();};
   const originalPause=$('pauseBtn').onclick;
-  $('pauseBtn').onclick=()=>{if(!active){originalPause?.();return;}paused=!paused;engine.resetCandidate();if(paused)cancelSpeech();engine.release();$('pauseBtn').textContent=paused?'계속 걷기':'일시정지';message(paused?'자동 안내를 잠시 멈췄습니다.':'자동 안내를 다시 시작합니다.');};
+  $('pauseBtn').onclick=()=>{if(!active){originalPause?.();return;}paused=!paused;engine.resetCandidate();if(window.PyodaNative)window.PyodaNative.postMessage(JSON.stringify({type:'pause',paused}));else if(paused)cancelSpeech();engine.release();$('pauseBtn').textContent=paused?'계속 걷기':'일시정지';message(paused?'자동 안내를 잠시 멈췄습니다.':'자동 안내를 다시 시작합니다.');};
   $('demoBtn').addEventListener('click',()=>{stop();$('pauseBtn').disabled=false;$('pauseBtn').textContent='일시정지';});
   document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{stop();if(capture!==null){geo.clearWatch(capture);capture=null;}}));
   $('speakBtn').onclick=()=>{if(!engine)resetEngine();if(speaking)cancelSpeech();play(Math.max(0,course.stories.findIndex(s=>s.title===$('storyTitle').textContent)));};
-  document.addEventListener('visibilitychange',()=>{engine?.resetCandidate();if(document.hidden){cancelSpeech();engine?.release();}});
-  window.addEventListener('pagehide',()=>{stop();if(capture!==null)geo?.clearWatch(capture);});
+  window.addEventListener('pyoda-native',event=>{const d=event.detail;if(!d)return;if(d.type==='stopped'){active=false;watch=null;speaking=false;$('gpsBtn').textContent='자동 안내 시작';$('pauseBtn').disabled=true;message('걷기 안내를 종료했습니다.');}if(d.type==='state'){paused=!!d.paused;message(d.message);$('pauseBtn').textContent=paused?'계속 걷기':'일시정지';}if(d.courseId!==course.id)return;if(d.type==='arrival'&&Number.isInteger(d.index)&&course.stories[d.index]){showStory(d.index);engine.complete(d.index);speaking=true;progress();message('이야기 재생 중');}if(d.type==='storycomplete'){speaking=false;message('다음 장소로 걸어주세요.');}});
+  document.addEventListener('visibilitychange',()=>{if(window.PyodaNative)return;engine?.resetCandidate();if(document.hidden){cancelSpeech();engine?.release();}});
+  window.addEventListener('pagehide',()=>{if(window.PyodaNative)return;stop();if(capture!==null)geo?.clearWatch(capture);});
   resetEngine();refreshPlaces();
 })();

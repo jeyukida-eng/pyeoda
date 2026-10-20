@@ -31,6 +31,7 @@
   window.addEventListener("pyoda-native", event => {
     const data = event.detail;
     if (!data) return;
+    if (data.type === "stopped") {for(const watch of watchers.values())clearTimeout(watch.timer);watchers.clear();return;}
     if (data.type === "position") {
       if (![data.latitude, data.longitude, data.accuracy, data.timestamp].every(Number.isFinite) ||
           Math.abs(data.latitude) > 90 || Math.abs(data.longitude) > 180 ||
@@ -52,8 +53,5 @@
     speak(text) { send("speak", {text}); },
     cancel() { send("cancelSpeech"); }
   };
-  window.addEventListener("pagehide", () => {
-    for (const id of [...watchers.keys()]) clearWatch(id);
-    window.PyodaSpeech.cancel();
-  });
+  // The native walking session is stopped by the user, not by page lifecycle events.
 })();

@@ -1,7 +1,7 @@
 {
   "name": "PYODA WALK",
   "short_name": "PYODA WALK",
-  "start_url": "./index.html",
+  "start_url": "/pyeoda/walk/index.html",
   "display": "standalone",
   "background_color": "#f4ecdd",
   "theme_color": "#f4ecdd",
@@ -19,6 +19,8 @@
       "purpose": "any"
     }
   ],
-  "id": "./",
-  "scope": "./"
+  "id": "/pyeoda/walk/",
+  "scope": "/pyeoda/walk/",
+  "lang": "ko-KR",
+  "description": "걸으며 듣는 서귀포 골목 도슨트"
 }
