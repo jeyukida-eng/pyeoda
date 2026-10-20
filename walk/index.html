@@ -34,7 +34,7 @@
       <p id="courseSubtitle" class="courseSubtitle"></p>
       <h2>그림지도를 따라<br>이야기를 들으며 걷습니다.</h2>
       <div class="chips"><span id="courseDuration"></span><span>6개 이야기 지점</span><span id="courseTheme"></span></div>
-      <p class="note">그림지도를 살펴보고 이야기를 들어보세요. 실제 위치 버튼은 휴대폰 위치를 확인하며, 그림 위 위치 이동은 좌표 연결 후 지원됩니다.</p>
+      <p class="note">등록된 장소에 가까워지면 이야기가 자동으로 시작됩니다. 보목포구 1곳은 관광정보 대표좌표를 연결했으며, 나머지 안내 지점은 좌표 지정이 필요합니다.</p>
     </div>
     <div id="pointPreview" class="pointPreview"></div>
     <div class="bottomAction"><button id="startBtn" class="primary">걷기 시작</button></div>
@@ -54,11 +54,18 @@
       <div class="progress"><i id="progressBar"></i></div>
       <p id="storyText"></p>
       <div class="nextBox"><div><span class="mini">다음 장소</span><strong id="nextPlace"></strong><small id="nextEta"></small></div><button id="speakBtn" class="listen">▶ 이야기 듣기</button></div>
-      <div class="controls"><button id="demoBtn">데모 걷기</button><button id="gpsBtn">내 위치 확인</button><button id="pauseBtn" disabled>일시정지</button></div>
-      <div id="status" class="status">데모 걷기로 지도 위 위치점 이동을 먼저 확인할 수 있습니다.</div>
+      <div class="controls"><button id="demoBtn">데모 걷기</button><button id="gpsBtn">자동 안내 시작</button><button id="pauseBtn" disabled>일시정지</button></div>
+      <details id="placeSettings" class="placeSettings"><summary>장소 설정 · <span id="placeCount"></span></summary>
+<p>정확한 안내 위치를 지정합니다. 직접 저장한 좌표는 이 기기에만 적용됩니다.</p>
+<label>이야기 장소<select id="placeSelect"></select></label>
+<div class="coordinateFields"><label>위도<input id="placeLat" type="number" step="any" inputmode="decimal" placeholder="33.…"></label><label>경도<input id="placeLng" type="number" step="any" inputmode="decimal" placeholder="126.…"></label></div>
+<label>안내 반경(m)<input id="placeRadius" type="number" min="15" max="100" value="30" inputmode="numeric"></label>
+<p id="placeSource" role="status"></p><a id="placeMap" target="_blank" rel="noopener">지도에서 장소 찾기 ↗</a>
+<div class="settingActions"><button id="capturePlace">현재 위치로 지정</button><button id="savePlace">좌표 저장</button><button id="exportPlaces">좌표 내보내기</button><button id="resetWalk">들은 기록 초기화</button></div>
+</details><div id="status" class="status">데모 걷기로 지도 위 위치점 이동을 먼저 확인할 수 있습니다.</div>
     </div>
   </section>
 </main>
-<script src="course-data.js"></script><script src="pyoda-location.js"></script><script src="app.js"></script>
+<script src="course-data.js"></script><script src="pyoda-location.js"></script><script src="arrival-engine.js"></script><script src="app.js"></script><script src="auto-docent.js"></script>
 <script>if(!window.PyodaNative && 'serviceWorker'in navigator){addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}</script>
 </body></html>
