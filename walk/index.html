@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f1e5">
+<title>PYODA WALK · 서귀포 골목 도슨트</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main id="app">
+  <section id="home" class="screen active">
+    <header class="homeHead">
+      <div class="eyebrow">PYODA WALK · 모바일 테스트</div>
+      <h1>서귀포 골목 도슨트</h1>
+      <p>관광지 밖, 마을이 살아온 길을 걷다</p>
+    </header>
+    <div class="hero">
+      <div><strong>책에서 본 그림지도를<br>그대로 들고 걷습니다.</strong><p>마을을 고르면 지도와 도슨트 이야기가 함께 열립니다.</p></div>
+      <div class="heroMark">10</div>
+    </div>
+    <div class="sectionRow"><h2>10개 마을</h2><span>전체 활성화</span></div>
+    <div id="villageGrid" class="villageGrid"></div>
+  </section>
+
+  <section id="course" class="screen">
+    <header class="bar"><button class="round" data-go="home">←</button><div><div id="courseEyebrow" class="eyebrow"></div><h1 id="courseName"></h1></div></header>
+    <div class="courseCard">
+      <p id="courseSubtitle" class="courseSubtitle"></p>
+      <h2>그림지도를 따라<br>이야기를 들으며 걷습니다.</h2>
+      <div class="chips"><span id="courseDuration"></span><span>6개 이야기 지점</span><span id="courseTheme"></span></div>
+      <p class="note">그림지도를 살펴보고 이야기를 들어보세요. 실제 위치 버튼은 휴대폰 위치를 확인하며, 그림 위 위치 이동은 좌표 연결 후 지원됩니다.</p>
+    </div>
+    <div id="pointPreview" class="pointPreview"></div>
+    <div class="bottomAction"><button id="startBtn" class="primary">걷기 시작</button></div>
+  </section>
+
+  <section id="walk" class="screen walk">
+    <header class="walkBar"><button class="round dark" data-go="course">←</button><div><small id="walkNo"></small><strong id="walkName"></strong></div><button id="zoomReset" class="round dark">◎</button></header>
+    <div id="mapShell" class="mapShell">
+      <div id="mapStage" class="mapStage">
+        <img id="mapImage" alt="골목 도슨트 지도">
+        <div id="pulse" class="pulse" aria-label="현재 위치"><span></span><i></i><b></b></div>
+      </div>
+      <div class="zoomCtl"><button id="zoomOut">−</button><button id="zoomIn">＋</button></div>
+    </div>
+    <div class="storySheet">
+      <div class="sheetTop"><div><span class="mini">걷는 중</span><h2 id="storyTitle"></h2></div><strong id="progressPct">0%</strong></div>
+      <div class="progress"><i id="progressBar"></i></div>
+      <p id="storyText"></p>
+      <div class="nextBox"><div><span class="mini">다음 장소</span><strong id="nextPlace"></strong><small id="nextEta"></small></div><button id="speakBtn" class="listen">▶ 이야기 듣기</button></div>
+      <div class="controls"><button id="demoBtn">데모 걷기</button><button id="gpsBtn">내 위치 확인</button><button id="pauseBtn" disabled>일시정지</button></div>
+      <div id="status" class="status">데모 걷기로 지도 위 위치점 이동을 먼저 확인할 수 있습니다.</div>
+    </div>
+  </section>
+</main>
+<script src="course-data.js"></script><script src="pyoda-location.js"></script><script src="app.js"></script>
+<script>if(!window.PyodaNative && 'serviceWorker'in navigator){addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}</script>
+</body></html>
